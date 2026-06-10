@@ -686,6 +686,15 @@ run-release:
 debug:
 	$(call run, $(BR)/install-$(PLATFORM)_debug-native,$(GDB) $(GDB_ARGS) --args)
 
+GDBSERVER ?= gdbserver
+GDBSERVER_ADDR ?= localhost:1234
+
+.PHONY: debug-server
+debug-server:
+	$(call run, \
+	  $(BR)/install-$(PLATFORM)_debug-native, \
+	  $(GDBSERVER) $(GDBSERVER_ADDR))
+	  
 .PHONY: build-coverity
 build-coverity:
 	$(call make,$(PLATFORM)_coverity,install-packages)
