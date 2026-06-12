@@ -18,12 +18,11 @@
 
 #include <vnet/session/session.h>
 
-typedef enum _hsi_error
-{
+typedef enum _hsi_error {
 #define hsi_error(n, s) HSI_ERROR_##n,
 #include <hsi/hsi_error.def>
 #undef hsi_error
-  HSI_N_ERROR,
+    HSI_N_ERROR,
 } hsi_error_t;
 
 #endif /* SRC_PLUGINS_HSI_HSI_H_ */

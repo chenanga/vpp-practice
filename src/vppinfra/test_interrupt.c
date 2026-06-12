@@ -24,55 +24,47 @@
 
 int debug = 0;
 
-#define debug(format, args...)                                                \
-  if (debug)                                                                  \
-    {                                                                         \
-      fformat (stdout, format, ##args);                                       \
+#define debug(format, args...)           \
+    if (debug) {                         \
+        fformat(stdout, format, ##args); \
     }
 
-void
-set_and_check_bits (void *interrupts, int num_ints)
+void set_and_check_bits(void *interrupts, int num_ints)
 {
-  for (int step = 1; step < num_ints; step++)
-    {
-      int int_num = -1;
-      int expected = 0;
+    for (int step = 1; step < num_ints; step++) {
+        int int_num  = -1;
+        int expected = 0;
 
-      debug ("  Step of %d\n", step);
-      for (int i = 0; i < num_ints; i += step)
-	{
-	  debug ("    Setting %d\n", i);
-	  clib_interrupt_set (interrupts, i);
-	}
+        debug("  Step of %d\n", step);
+        for (int i = 0; i < num_ints; i += step) {
+            debug("    Setting %d\n", i);
+            clib_interrupt_set(interrupts, i);
+        }
 
-      while ((int_num =
-		clib_interrupt_get_next_and_clear (interrupts, int_num)) != -1)
-	{
-	  debug ("    Got %d, expecting %d\n", int_num, expected);
-	  ASSERT (int_num == expected);
-	  expected += step;
-	}
-      int_num = clib_interrupt_get_next_and_clear (interrupts, -1);
-      ASSERT (int_num == -1);
+        while ((int_num = clib_interrupt_get_next_and_clear(interrupts, int_num)) != -1) {
+            debug("    Got %d, expecting %d\n", int_num, expected);
+            ASSERT(int_num == expected);
+            expected += step;
+        }
+        int_num = clib_interrupt_get_next_and_clear(interrupts, -1);
+        ASSERT(int_num == -1);
     }
 }
 
-int
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  clib_mem_init (0, 3ULL << 30);
+    clib_mem_init(0, 3ULL << 30);
 
-  debug = (argc > 1);
+    debug = (argc > 1);
 
-  void *interrupts = NULL;
+    void *interrupts = NULL;
 
-  for (int num_ints = 0; num_ints < MAX_INTS; num_ints++)
-    {
-      clib_interrupt_resize (&interrupts, num_ints);
-      debug ("Size now %d\n", num_ints);
+    for (int num_ints = 0; num_ints < MAX_INTS; num_ints++) {
+        clib_interrupt_resize(&interrupts, num_ints);
+        debug("Size now %d\n", num_ints);
 
-      set_and_check_bits (interrupts, num_ints);
+        set_and_check_bits(interrupts, num_ints);
     }
 
-  return 0;
+    return 0;
 }

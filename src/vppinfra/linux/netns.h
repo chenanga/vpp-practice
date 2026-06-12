@@ -18,8 +18,8 @@
 
 #include <vppinfra/clib.h>
 
-int clib_netns_open (u8 *netns);
-int clib_setns (int nfd);
+int clib_netns_open(u8 *netns);
+int clib_setns(int nfd);
 
 #endif /* included_vppinfra_netns_h */
 

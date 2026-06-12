@@ -24,68 +24,58 @@
  * Return 1 if to skip the delay loop because we are suspending
  * the calling vlib process instead.
  */
-static int
-rte_delay_us_override (unsigned us)
+static int rte_delay_us_override(unsigned us)
 {
-  vlib_main_t *vm;
+    vlib_main_t *vm;
 
-  /* Don't bother intercepting for short delays */
-  if (us < 10)
-    return 0;
+    /* Don't bother intercepting for short delays */
+    if (us < 10) return 0;
 
-  /*
-   * Only intercept if we are in a vlib process.
-   * If we are called from a vlib worker thread or the vlib main
-   * thread then do not intercept. (Must not be called from an
-   * independent pthread).
-   */
-  if (vlib_get_thread_index () == 0)
-    {
-      /*
-       * We're in the vlib main thread or a vlib process. Make sure
-       * the process is running and we're not still initializing.
-       */
-      vm = vlib_get_main ();
-      if (vlib_in_process_context (vm))
-	{
-	  /* Only suspend for the admin_down_process */
-	  vlib_process_t *proc = vlib_get_current_process (vm);
-	  if (!(proc->flags & VLIB_PROCESS_IS_RUNNING) ||
-	      (proc->node_runtime.node_index !=
-	       admin_up_down_process_node.index))
-	    return 0;
+    /*
+     * Only intercept if we are in a vlib process.
+     * If we are called from a vlib worker thread or the vlib main
+     * thread then do not intercept. (Must not be called from an
+     * independent pthread).
+     */
+    if (vlib_get_thread_index() == 0) {
+        /*
+         * We're in the vlib main thread or a vlib process. Make sure
+         * the process is running and we're not still initializing.
+         */
+        vm = vlib_get_main();
+        if (vlib_in_process_context(vm)) {
+            /* Only suspend for the admin_down_process */
+            vlib_process_t *proc = vlib_get_current_process(vm);
+            if (!(proc->flags & VLIB_PROCESS_IS_RUNNING) || (proc->node_runtime.node_index != admin_up_down_process_node.index)) return 0;
 
-	  f64 delay = 1e-6 * us;
-	  vlib_process_suspend (vm, delay);
-	  return 1;
-	}
+            f64 delay = 1e-6 * us;
+            vlib_process_suspend(vm, delay);
+            return 1;
+        }
     }
-  return 0;			// no override
+    return 0;  // no override
 }
 
-static void
-rte_delay_us_override_cb (unsigned us)
+static void rte_delay_us_override_cb(unsigned us)
 {
-  if (rte_delay_us_override (us) == 0)
-    rte_delay_us_block (us);
+    if (rte_delay_us_override(us) == 0) rte_delay_us_block(us);
 }
 
-static clib_error_t * dpdk_main_init (vlib_main_t * vm)
+static clib_error_t *dpdk_main_init(vlib_main_t *vm)
 {
-  clib_error_t * error = 0;
+    clib_error_t *error = 0;
 
-  /* register custom delay function */
-  rte_delay_us_callback_register (rte_delay_us_override_cb);
+    /* register custom delay function */
+    rte_delay_us_callback_register(rte_delay_us_override_cb);
 
-  return error;
+    return error;
 }
 
-VLIB_INIT_FUNCTION (dpdk_main_init) =
-{
+VLIB_INIT_FUNCTION(dpdk_main_init) = {
     .runs_after = VLIB_INITS("dpdk_init"),
 };
 
-VLIB_PLUGIN_REGISTER () = {
-    .version = VPP_BUILD_VER,
+VLIB_PLUGIN_REGISTER() = {
+    .version     = VPP_BUILD_VER,
     .description = "Data Plane Development Kit (DPDK)",
 };

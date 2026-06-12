@@ -45,52 +45,46 @@
 
 extern vnet_hw_interface_class_t ppp_hw_interface_class;
 
-typedef enum
-{
-#define ppp_error(n,s) PPP_ERROR_##n,
+typedef enum {
+#define ppp_error(n, s) PPP_ERROR_##n,
 #include <vnet/ppp/error.def>
 #undef ppp_error
-  PPP_N_ERROR,
+    PPP_N_ERROR,
 } ppp_error_t;
 
-typedef struct
-{
-  /* Name (a c string). */
-  char *name;
+typedef struct {
+    /* Name (a c string). */
+    char *name;
 
-  /* PPP protocol type in host byte order. */
-  ppp_protocol_t protocol;
+    /* PPP protocol type in host byte order. */
+    ppp_protocol_t protocol;
 
-  /* Node which handles this type. */
-  u32 node_index;
+    /* Node which handles this type. */
+    u32 node_index;
 
-  /* Next index for this type. */
-  u32 next_index;
+    /* Next index for this type. */
+    u32 next_index;
 } ppp_protocol_info_t;
 
-typedef struct
-{
-  vlib_main_t *vlib_main;
+typedef struct {
+    vlib_main_t *vlib_main;
 
-  ppp_protocol_info_t *protocol_infos;
+    ppp_protocol_info_t *protocol_infos;
 
-  /* Hash tables mapping name/protocol to protocol info index. */
-  uword *protocol_info_by_name, *protocol_info_by_protocol;
+    /* Hash tables mapping name/protocol to protocol info index. */
+    uword *protocol_info_by_name, *protocol_info_by_protocol;
 } ppp_main_t;
 
-always_inline ppp_protocol_info_t *
-ppp_get_protocol_info (ppp_main_t * em, ppp_protocol_t protocol)
+always_inline ppp_protocol_info_t *ppp_get_protocol_info(ppp_main_t *em, ppp_protocol_t protocol)
 {
-  uword *p = hash_get (em->protocol_info_by_protocol, protocol);
-  return p ? vec_elt_at_index (em->protocol_infos, p[0]) : 0;
+    uword *p = hash_get(em->protocol_info_by_protocol, protocol);
+    return p ? vec_elt_at_index(em->protocol_infos, p[0]) : 0;
 }
 
 extern ppp_main_t ppp_main;
 
 /* Register given node index to take input for given ppp type. */
-void
-ppp_register_input_type (vlib_main_t * vm,
-			 ppp_protocol_t protocol, u32 node_index);
+void ppp_register_input_type(vlib_main_t *vm, ppp_protocol_t protocol, u32 node_index);
 
 format_function_t format_ppp_protocol;
 format_function_t format_ppp_header;
@@ -105,9 +99,7 @@ unformat_function_t unformat_ppp_protocol_net_byte_order;
 unformat_function_t unformat_ppp_header;
 unformat_function_t unformat_pg_ppp_header;
 
-void
-ppp_register_input_protocol (vlib_main_t * vm,
-			     ppp_protocol_t protocol, u32 node_index);
+void ppp_register_input_protocol(vlib_main_t *vm, ppp_protocol_t protocol, u32 node_index);
 
 #endif /* included_ppp_h */
 

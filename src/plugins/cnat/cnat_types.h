@@ -36,21 +36,21 @@
 
 #define CNAT_DEFAULT_SESSION_BUCKETS     1024
 #define CNAT_DEFAULT_TRANSLATION_BUCKETS 1024
-#define CNAT_DEFAULT_CLIENT_BUCKETS	 1024
+#define CNAT_DEFAULT_CLIENT_BUCKETS      1024
 #define CNAT_DEFAULT_SNAT_BUCKETS        1024
-#define CNAT_DEFAULT_SNAT_IF_MAP_LEN	 4096
+#define CNAT_DEFAULT_SNAT_IF_MAP_LEN     4096
 
-#define CNAT_DEFAULT_SESSION_MEMORY      (1 << 20)
-#define CNAT_DEFAULT_TRANSLATION_MEMORY  (256 << 10)
-#define CNAT_DEFAULT_CLIENT_MEMORY	 (256 << 10)
-#define CNAT_DEFAULT_SNAT_MEMORY	 (64 << 10)
+#define CNAT_DEFAULT_SESSION_MEMORY     (1 << 20)
+#define CNAT_DEFAULT_TRANSLATION_MEMORY (256 << 10)
+#define CNAT_DEFAULT_CLIENT_MEMORY      (256 << 10)
+#define CNAT_DEFAULT_SNAT_MEMORY        (64 << 10)
 
 /* Should be prime >~ 100 * numBackends */
 #define CNAT_DEFAULT_MAGLEV_LEN 1009
 
 /* This should be strictly lower than FIB_SOURCE_INTERFACE
  * from fib_source.h */
-#define CNAT_FIB_SOURCE_PRIORITY  0x02
+#define CNAT_FIB_SOURCE_PRIORITY 0x02
 
 /* Initial number of timestamps for a session
  * this will be incremented when adding the reverse
@@ -59,117 +59,109 @@
 
 #define MIN_SRC_PORT ((u16) 0xC000)
 
-typedef struct
-{
-  /* Source and destination port. */
-  u16 src_port, dst_port;
+typedef struct {
+    /* Source and destination port. */
+    u16 src_port, dst_port;
 
-  /* Random value to distinguish connections. */
-  u32 verification_tag;
+    /* Random value to distinguish connections. */
+    u32 verification_tag;
 
-  u32 checksum;
+    u32 checksum;
 } sctp_header_t;
 
-typedef enum cnat_trk_flag_t_
-{
-  /* Endpoint is active (static or dhcp resolved) */
-  CNAT_TRK_ACTIVE = (1 << 0),
-  /* Don't translate this endpoint, but still
-   * forward. Used by maglev for DSR */
-  CNAT_TRK_FLAG_NO_NAT = (1 << 1),
-  /* */
-  CNAT_TRK_FLAG_TEST_DISABLED = (1 << 7),
+typedef enum cnat_trk_flag_t_ {
+    /* Endpoint is active (static or dhcp resolved) */
+    CNAT_TRK_ACTIVE = (1 << 0),
+    /* Don't translate this endpoint, but still
+     * forward. Used by maglev for DSR */
+    CNAT_TRK_FLAG_NO_NAT = (1 << 1),
+    /* */
+    CNAT_TRK_FLAG_TEST_DISABLED = (1 << 7),
 } cnat_trk_flag_t;
 
-typedef enum
-{
-  /* Endpoint addr has been resolved */
-  CNAT_EP_FLAG_RESOLVED = (1 << 0),
+typedef enum {
+    /* Endpoint addr has been resolved */
+    CNAT_EP_FLAG_RESOLVED = (1 << 0),
 } cnat_ep_flag_t;
 
-typedef struct cnat_endpoint_t_
-{
-  ip_address_t ce_ip;
-  u32 ce_sw_if_index;
-  u16 ce_port;
-  u8 ce_flags;
+typedef struct cnat_endpoint_t_ {
+    ip_address_t ce_ip;
+    u32          ce_sw_if_index;
+    u16          ce_port;
+    u8           ce_flags;
 } cnat_endpoint_t;
 
-typedef struct cnat_endpoint_tuple_t_
-{
-  cnat_endpoint_t dst_ep;
-  cnat_endpoint_t src_ep;
-  u8 ep_flags; /* cnat_trk_flag_t */
+typedef struct cnat_endpoint_tuple_t_ {
+    cnat_endpoint_t dst_ep;
+    cnat_endpoint_t src_ep;
+    u8              ep_flags; /* cnat_trk_flag_t */
 } cnat_endpoint_tuple_t;
 
-typedef struct
-{
-  u16 identifier;
-  u16 sequence;
+typedef struct {
+    u16 identifier;
+    u16 sequence;
 } cnat_echo_header_t;
 
-typedef struct cnat_main_
-{
-  /* Memory size of the session bihash */
-  uword session_hash_memory;
+typedef struct cnat_main_ {
+    /* Memory size of the session bihash */
+    uword session_hash_memory;
 
-  /* Number of buckets of the  session bihash */
-  u32 session_hash_buckets;
+    /* Number of buckets of the  session bihash */
+    u32 session_hash_buckets;
 
-  /* Memory size of the translation bihash */
-  uword translation_hash_memory;
+    /* Memory size of the translation bihash */
+    uword translation_hash_memory;
 
-  /* Number of buckets of the  translation bihash */
-  u32 translation_hash_buckets;
+    /* Number of buckets of the  translation bihash */
+    u32 translation_hash_buckets;
 
-  /* Memory size of the client bihash */
-  uword client_hash_memory;
+    /* Memory size of the client bihash */
+    uword client_hash_memory;
 
-  /* Number of buckets of the  client bihash */
-  u32 client_hash_buckets;
+    /* Number of buckets of the  client bihash */
+    u32 client_hash_buckets;
 
-  /* Memory size of the source NAT prefix bihash */
-  uword snat_hash_memory;
+    /* Memory size of the source NAT prefix bihash */
+    uword snat_hash_memory;
 
-  /* Number of buckets of the  source NAT prefix bihash */
-  u32 snat_hash_buckets;
+    /* Number of buckets of the  source NAT prefix bihash */
+    u32 snat_hash_buckets;
 
-  /* Bit map for include / exclude sw_if_index
-   * so max number of expected interfaces */
-  u32 snat_if_map_length;
+    /* Bit map for include / exclude sw_if_index
+     * so max number of expected interfaces */
+    u32 snat_if_map_length;
 
-  /* Timeout after which to clear sessions (in seconds) */
-  u32 session_max_age;
+    /* Timeout after which to clear sessions (in seconds) */
+    u32 session_max_age;
 
-  /* Timeout after which to clear an established TCP
-   * session (in seconds) */
-  u32 tcp_max_age;
+    /* Timeout after which to clear an established TCP
+     * session (in seconds) */
+    u32 tcp_max_age;
 
-  /* delay in seconds between two scans of session/clients tables */
-  f64 scanner_timeout;
+    /* delay in seconds between two scans of session/clients tables */
+    f64 scanner_timeout;
 
-  /* Index of the scanner process node */
-  uword scanner_node_index;
+    /* Index of the scanner process node */
+    uword scanner_node_index;
 
-  /* Did we do lazy init ? */
-  u8 lazy_init_done;
+    /* Did we do lazy init ? */
+    u8 lazy_init_done;
 
-  /* Enable or Disable the scanner on startup */
-  u8 default_scanner_state;
+    /* Enable or Disable the scanner on startup */
+    u8 default_scanner_state;
 
-  /* Number of buckets for maglev, should be a
-   * prime >= 100 * max num bakends */
-  u32 maglev_len;
+    /* Number of buckets for maglev, should be a
+     * prime >= 100 * max num bakends */
+    u32 maglev_len;
 } cnat_main_t;
 
-typedef struct cnat_timestamp_t_
-{
-  /* Last time said session was seen */
-  f64 last_seen;
-  /* expire after N seconds */
-  u16 lifetime;
-  /* Users refcount, initially 3 (session, rsession, dpo) */
-  u16 refcnt;
+typedef struct cnat_timestamp_t_ {
+    /* Last time said session was seen */
+    f64 last_seen;
+    /* expire after N seconds */
+    u16 lifetime;
+    /* Users refcount, initially 3 (session, rsession, dpo) */
+    u16 refcnt;
 } cnat_timestamp_t;
 
 /* Create the first pool with 1 << CNAT_TS_BASE_SIZE elts */
@@ -177,68 +169,61 @@ typedef struct cnat_timestamp_t_
 /* reserve the top CNAT_TS_MPOOL_BITS bits for finding the pool */
 #define CNAT_TS_MPOOL_BITS (6)
 
-typedef struct cnat_timestamp_mpool_t_
-{
-  /* Increasing fixed size pools of timestamps */
-  cnat_timestamp_t *ts_pools[1 << CNAT_TS_MPOOL_BITS];
-  /* Bitmap of pools with free space */
-  uword *ts_free;
-  /* Index of next pool to init */
-  u8 next_empty_pool_idx;
-  /* ts creation lock */
-  clib_spinlock_t ts_lock;
+typedef struct cnat_timestamp_mpool_t_ {
+    /* Increasing fixed size pools of timestamps */
+    cnat_timestamp_t *ts_pools[1 << CNAT_TS_MPOOL_BITS];
+    /* Bitmap of pools with free space */
+    uword *ts_free;
+    /* Index of next pool to init */
+    u8 next_empty_pool_idx;
+    /* ts creation lock */
+    clib_spinlock_t ts_lock;
 } cnat_timestamp_mpool_t;
 
-typedef struct cnat_node_ctx_
-{
-  f64 now;
-  u32 thread_index;
-  ip_address_family_t af;
-  u8 do_trace;
+typedef struct cnat_node_ctx_ {
+    f64                 now;
+    u32                 thread_index;
+    ip_address_family_t af;
+    u8                  do_trace;
 } cnat_node_ctx_t;
 
-cnat_main_t *cnat_get_main ();
-extern u8 *format_cnat_endpoint (u8 * s, va_list * args);
-extern uword unformat_cnat_ep_tuple (unformat_input_t * input,
-				     va_list * args);
-extern uword unformat_cnat_ep (unformat_input_t * input, va_list * args);
+cnat_main_t                  *cnat_get_main();
+extern u8                    *format_cnat_endpoint(u8 *s, va_list *args);
+extern uword                  unformat_cnat_ep_tuple(unformat_input_t *input, va_list *args);
+extern uword                  unformat_cnat_ep(unformat_input_t *input, va_list *args);
 extern cnat_timestamp_mpool_t cnat_timestamps;
-extern cnat_main_t cnat_main;
+extern cnat_main_t            cnat_main;
 
 extern char *cnat_error_strings[];
 
-typedef enum
-{
-#define cnat_error(n,s) CNAT_ERROR_##n,
+typedef enum {
+#define cnat_error(n, s) CNAT_ERROR_##n,
 #include <cnat/cnat_error.def>
 #undef cnat_error
-  CNAT_N_ERROR,
+    CNAT_N_ERROR,
 } cnat_error_t;
 
-typedef enum cnat_scanner_cmd_t_
-{
-  CNAT_SCANNER_OFF,
-  CNAT_SCANNER_ON,
+typedef enum cnat_scanner_cmd_t_ {
+    CNAT_SCANNER_OFF,
+    CNAT_SCANNER_ON,
 } cnat_scanner_cmd_t;
 
 /**
  * Lazy initialization when first adding a translation
  * or using snat
  */
-extern void cnat_lazy_init ();
+extern void cnat_lazy_init();
 
 /**
  * Enable/Disable session cleanup
  */
-extern void cnat_enable_disable_scanner (cnat_scanner_cmd_t event_type);
+extern void cnat_enable_disable_scanner(cnat_scanner_cmd_t event_type);
 
 /**
  * Resolve endpoint address
  */
-extern u8 cnat_resolve_ep (cnat_endpoint_t * ep);
-extern u8 cnat_resolve_addr (u32 sw_if_index, ip_address_family_t af,
-			     ip_address_t * addr);
-
+extern u8 cnat_resolve_ep(cnat_endpoint_t *ep);
+extern u8 cnat_resolve_addr(u32 sw_if_index, ip_address_family_t af, ip_address_t *addr);
 
 /*
  * fd.io coding-style-patch-verification: ON

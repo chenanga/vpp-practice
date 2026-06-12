@@ -14,14 +14,12 @@
 
 extern clib_dt_main_t vnet_dev_bus_platform_dt_main;
 
-typedef struct
-{
-  clib_dt_node_t *node;
+typedef struct {
+    clib_dt_node_t *node;
 } vnet_dev_bus_platform_device_info_t;
 
-typedef struct
-{
-  clib_dt_node_t *node;
+typedef struct {
+    clib_dt_node_t *node;
 } vnet_dev_bus_platform_device_data_t;
 
 #endif /* _VNET_DEV_BUS_PLATFORM_H_ */

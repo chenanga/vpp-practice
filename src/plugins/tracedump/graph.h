@@ -15,16 +15,14 @@
  * limitations under the License.
  */
 
-#define GRAPH_NODE_NAME_LEN	64
+#define GRAPH_NODE_NAME_LEN 64
 
-typedef struct
-{
-  u16 msg_id_base;
-  vlib_node_t **sorted_node_vec;
+typedef struct {
+    u16           msg_id_base;
+    vlib_node_t **sorted_node_vec;
 } graph_main_t;
 
 extern graph_main_t graph_main;
-
 
 /*
  * fd.io coding-style-patch-verification: ON

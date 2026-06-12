@@ -5,7 +5,7 @@
 #ifndef _MUSDK_H_
 #define _MUSDK_H_
 
-#define MVCONF_DBG_LEVEL	       0
+#define MVCONF_DBG_LEVEL               0
 #define MVCONF_PP2_BPOOL_COOKIE_SIZE   32
 #define MVCONF_PP2_BPOOL_DMA_ADDR_SIZE 64
 #define MVCONF_DMA_PHYS_ADDR_T_SIZE    64

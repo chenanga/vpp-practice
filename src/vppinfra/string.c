@@ -45,56 +45,54 @@
  */
 
 /* Exchanges source and destination. */
-void
-clib_memswap (void *_a, void *_b, uword bytes)
+void clib_memswap(void *_a, void *_b, uword bytes)
 {
-  uword pa = pointer_to_uword (_a);
-  uword pb = pointer_to_uword (_b);
+    uword pa = pointer_to_uword(_a);
+    uword pb = pointer_to_uword(_b);
 
-#define _(TYPE)					\
-  if (0 == ((pa | pb) & (sizeof (TYPE) - 1)))	\
-    {						\
-      TYPE * a = uword_to_pointer (pa, TYPE *);	\
-      TYPE * b = uword_to_pointer (pb, TYPE *);	\
-						\
-      while (bytes >= 2*sizeof (TYPE))		\
-	{					\
-	  TYPE a0, a1, b0, b1;			\
-	  bytes -= 2*sizeof (TYPE);		\
-	  a += 2;				\
-	  b += 2;				\
-	  a0 = a[-2]; a1 = a[-1];		\
-	  b0 = b[-2]; b1 = b[-1];		\
-	  a[-2] = b0; a[-1] = b1;		\
-	  b[-2] = a0; b[-1] = a1;		\
-	}					\
-      pa = pointer_to_uword (a);		\
-      pb = pointer_to_uword (b);		\
+#define _(TYPE)                                  \
+    if (0 == ((pa | pb) & (sizeof(TYPE) - 1))) { \
+        TYPE *a = uword_to_pointer(pa, TYPE *);  \
+        TYPE *b = uword_to_pointer(pb, TYPE *);  \
+                                                 \
+        while (bytes >= 2 * sizeof(TYPE)) {      \
+            TYPE a0, a1, b0, b1;                 \
+            bytes -= 2 * sizeof(TYPE);           \
+            a += 2;                              \
+            b += 2;                              \
+            a0    = a[-2];                       \
+            a1    = a[-1];                       \
+            b0    = b[-2];                       \
+            b1    = b[-1];                       \
+            a[-2] = b0;                          \
+            a[-1] = b1;                          \
+            b[-2] = a0;                          \
+            b[-1] = a1;                          \
+        }                                        \
+        pa = pointer_to_uword(a);                \
+        pb = pointer_to_uword(b);                \
     }
 
-  if (BITS (uword) == BITS (u64))
-    _(u64);
-  _(u32);
-  _(u16);
-  _(u8);
+    if (BITS(uword) == BITS(u64)) _(u64);
+    _(u32);
+    _(u16);
+    _(u8);
 
 #undef _
 
-  ASSERT (bytes < 2);
-  if (bytes)
-    {
-      u8 *a = uword_to_pointer (pa, u8 *);
-      u8 *b = uword_to_pointer (pb, u8 *);
-      u8 a0 = a[0], b0 = b[0];
-      a[0] = b0;
-      b[0] = a0;
+    ASSERT(bytes < 2);
+    if (bytes) {
+        u8 *a  = uword_to_pointer(pa, u8 *);
+        u8 *b  = uword_to_pointer(pb, u8 *);
+        u8  a0 = a[0], b0 = b[0];
+        a[0] = b0;
+        b[0] = a0;
     }
 }
 
-__clib_export void
-clib_c11_violation (const char *s)
+__clib_export void clib_c11_violation(const char *s)
 {
-  _clib_error (CLIB_ERROR_WARNING, (char *) __FUNCTION__, 0, (char *) s);
+    _clib_error(CLIB_ERROR_WARNING, (char *) __FUNCTION__, 0, (char *) s);
 }
 
 /**
@@ -116,11 +114,9 @@ clib_c11_violation (const char *s)
  *         EINVAL     runtime constraint error
  *
  */
-__clib_export errno_t
-memcpy_s (void *__restrict__ dest, rsize_t dmax,
-	  const void *__restrict__ src, rsize_t n)
+__clib_export errno_t memcpy_s(void *__restrict__ dest, rsize_t dmax, const void *__restrict__ src, rsize_t n)
 {
-  return memcpy_s_inline (dest, dmax, src, n);
+    return memcpy_s_inline(dest, dmax, src, n);
 }
 
 /**
@@ -141,10 +137,9 @@ memcpy_s (void *__restrict__ dest, rsize_t dmax,
  *         EINVAL     runtime constraint error
  *
  */
-__clib_export errno_t
-memset_s (void *s, rsize_t smax, int c, rsize_t n)
+__clib_export errno_t memset_s(void *s, rsize_t smax, int c, rsize_t n)
 {
-  return memset_s_inline (s, smax, c, n);
+    return memset_s_inline(s, smax, c, n);
 }
 
 /**
@@ -174,11 +169,9 @@ memset_s (void *s, rsize_t smax, int c, rsize_t n)
  *         EINVAL runtime constraint error
  *
  */
-__clib_export errno_t
-memcmp_s (const void *s1, rsize_t s1max, const void *s2, rsize_t s2max,
-	  int *diff)
+__clib_export errno_t memcmp_s(const void *s1, rsize_t s1max, const void *s2, rsize_t s2max, int *diff)
 {
-  return memcmp_s_inline (s1, s1max, s2, s2max, diff);
+    return memcmp_s_inline(s1, s1max, s2, s2max, diff);
 }
 
 /**
@@ -209,10 +202,9 @@ memcmp_s (const void *s1, rsize_t s1max, const void *s2, rsize_t s2max,
  *         EINVAL     runtime constraint error
  *
  */
-__clib_export errno_t
-strcmp_s (const char *s1, rsize_t s1max, const char *s2, int *indicator)
+__clib_export errno_t strcmp_s(const char *s1, rsize_t s1max, const char *s2, int *indicator)
 {
-  return strcmp_s_inline (s1, s1max, s2, indicator);
+    return strcmp_s_inline(s1, s1max, s2, indicator);
 }
 
 /**
@@ -242,11 +234,9 @@ strcmp_s (const char *s1, rsize_t s1max, const char *s2, int *indicator)
  *         EINVAL     runtime constraint error
  *
  */
-__clib_export errno_t
-strncmp_s (const char *s1, rsize_t s1max, const char *s2, rsize_t n,
-	   int *indicator)
+__clib_export errno_t strncmp_s(const char *s1, rsize_t s1max, const char *s2, rsize_t n, int *indicator)
 {
-  return strncmp_s_inline (s1, s1max, s2, n, indicator);
+    return strncmp_s_inline(s1, s1max, s2, n, indicator);
 }
 
 /**
@@ -268,10 +258,9 @@ strncmp_s (const char *s1, rsize_t s1max, const char *s2, rsize_t n,
  *         EINVAL     runtime constraint error
  *
  */
-__clib_export errno_t
-strcpy_s (char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src)
+__clib_export errno_t strcpy_s(char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src)
 {
-  return strcpy_s_inline (dest, dmax, src);
+    return strcpy_s_inline(dest, dmax, src);
 }
 
 /**
@@ -295,11 +284,9 @@ strcpy_s (char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src)
  *                    dest is null terminated.
  *
  */
-__clib_export errno_t
-strncpy_s (char *__restrict__ dest, rsize_t dmax,
-	   const char *__restrict__ src, rsize_t n)
+__clib_export errno_t strncpy_s(char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src, rsize_t n)
 {
-  return strncpy_s_inline (dest, dmax, src, n);
+    return strncpy_s_inline(dest, dmax, src, n);
 }
 
 /**
@@ -324,10 +311,9 @@ strncpy_s (char *__restrict__ dest, rsize_t dmax,
  *         EINVAL     runtime constraint error
  *
  */
-__clib_export errno_t
-strcat_s (char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src)
+__clib_export errno_t strcat_s(char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src)
 {
-  return strcat_s_inline (dest, dmax, src);
+    return strcat_s_inline(dest, dmax, src);
 }
 
 /**
@@ -354,11 +340,9 @@ strcat_s (char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src)
  *                    dest is null terminated.
  *
  */
-__clib_export errno_t
-strncat_s (char *__restrict__ dest, rsize_t dmax,
-	   const char *__restrict__ src, rsize_t n)
+__clib_export errno_t strncat_s(char *__restrict__ dest, rsize_t dmax, const char *__restrict__ src, rsize_t n)
 {
-  return strncat_s_inline (dest, dmax, src, n);
+    return strncat_s_inline(dest, dmax, src, n);
 }
 
 /**
@@ -406,11 +390,9 @@ strncat_s (char *__restrict__ dest, rsize_t dmax,
  *   tok1 = "brevity", tok2 = "is", tok3 = "the", tok4 = "soul", tok5 = "of",
  *   tok6 = "wit", tok7 = null
  */
-__clib_export char *
-strtok_s (char *__restrict__ s1, rsize_t * __restrict__ s1max,
-	  const char *__restrict__ s2, char **__restrict__ ptr)
+__clib_export char *strtok_s(char *__restrict__ s1, rsize_t *__restrict__ s1max, const char *__restrict__ s2, char **__restrict__ ptr)
 {
-  return strtok_s_inline (s1, s1max, s2, ptr);
+    return strtok_s_inline(s1, s1max, s2, ptr);
 }
 
 /**
@@ -429,10 +411,9 @@ strtok_s (char *__restrict__ s1, rsize_t * __restrict__ s1max,
  *                more than maxsize or 0 if there is a constraint error
  *
  */
-__clib_export size_t
-strnlen_s (const char *s, size_t maxsize)
+__clib_export size_t strnlen_s(const char *s, size_t maxsize)
 {
-  return strnlen_s_inline (s, maxsize);
+    return strnlen_s_inline(s, maxsize);
 }
 
 /**
@@ -466,11 +447,9 @@ strnlen_s (const char *s, size_t maxsize)
  * After the above call,
  *   sub = "failure is not fatal."
  */
-__clib_export errno_t
-strstr_s (char *s1, rsize_t s1max, const char *s2, rsize_t s2max,
-	  char **substring)
+__clib_export errno_t strstr_s(char *s1, rsize_t s1max, const char *s2, rsize_t s2max, char **substring)
 {
-  return strstr_s_inline (s1, s1max, s2, s2max, substring);
+    return strstr_s_inline(s1, s1max, s2, s2max, substring);
 }
 
 /*

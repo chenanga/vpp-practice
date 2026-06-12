@@ -19,31 +19,29 @@
 
 #include <vppinfra/format.h>
 
-__clib_export int
-clib_netns_open (u8 *netns_u8)
+__clib_export int clib_netns_open(u8 *netns_u8)
 {
-  char *netns = (char *) netns_u8;
-  u8 *s = 0;
-  int fd;
+    char *netns = (char *) netns_u8;
+    u8   *s     = 0;
+    int   fd;
 
-  if ((NULL) == netns)
-    s = format (0, "/proc/self/ns/net");
-  else if (strncmp (netns, "pid:", 4) == 0)
-    s = format (0, "/proc/%u/ns/net%c", atoi (netns + 4), 0);
-  else if (netns[0] == '/')
-    s = format (0, "%s%c", netns, 0);
-  else
-    s = format (0, "/var/run/netns/%s%c", netns, 0);
+    if ((NULL) == netns)
+        s = format(0, "/proc/self/ns/net");
+    else if (strncmp(netns, "pid:", 4) == 0)
+        s = format(0, "/proc/%u/ns/net%c", atoi(netns + 4), 0);
+    else if (netns[0] == '/')
+        s = format(0, "%s%c", netns, 0);
+    else
+        s = format(0, "/var/run/netns/%s%c", netns, 0);
 
-  fd = open ((char *) s, O_RDONLY);
-  vec_free (s);
-  return fd;
+    fd = open((char *) s, O_RDONLY);
+    vec_free(s);
+    return fd;
 }
 
-__clib_export int
-clib_setns (int nfd)
+__clib_export int clib_setns(int nfd)
 {
-  return setns (nfd, CLONE_NEWNET);
+    return setns(nfd, CLONE_NEWNET);
 }
 
 /*

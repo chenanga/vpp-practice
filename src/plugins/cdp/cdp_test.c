@@ -19,17 +19,16 @@
 #include <vlibmemory/api.h>
 #include <vppinfra/error.h>
 
-uword unformat_sw_if_index (unformat_input_t * input, va_list * args);
+uword unformat_sw_if_index(unformat_input_t *input, va_list *args);
 
 /* Declare message IDs */
 #include <cdp/cdp.api_enum.h>
 #include <cdp/cdp.api_types.h>
 
-typedef struct
-{
-  /* API message ID base */
-  u16 msg_id_base;
-  vat_main_t *vat_main;
+typedef struct {
+    /* API message ID base */
+    u16         msg_id_base;
+    vat_main_t *vat_main;
 } cdp_test_main_t;
 
 cdp_test_main_t cdp_test_main;
@@ -41,38 +40,35 @@ cdp_test_main_t cdp_test_main;
  * Table of message reply handlers, must include boilerplate handlers
  * we just generated
  */
-#define foreach_vpe_api_reply_msg                                       \
-_(CDP_ENABLE_DISABLE_REPLY, cdp_enable_disable_reply)
+#define foreach_vpe_api_reply_msg _(CDP_ENABLE_DISABLE_REPLY, cdp_enable_disable_reply)
 
-static int
-api_cdp_enable_disable (vat_main_t * vam)
+static int api_cdp_enable_disable(vat_main_t *vam)
 {
-  unformat_input_t *i = vam->input;
-  int enable_disable = 1;
-  vl_api_cdp_enable_disable_t *mp;
-  int ret;
+    unformat_input_t            *i              = vam->input;
+    int                          enable_disable = 1;
+    vl_api_cdp_enable_disable_t *mp;
+    int                          ret;
 
-  /* Parse args required to build the message */
-  while (unformat_check_input (i) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (i, "disable"))
-	enable_disable = 0;
-      else if (unformat (i, "enable"))
-	enable_disable = 1;
-      else
-	break;
+    /* Parse args required to build the message */
+    while (unformat_check_input(i) != UNFORMAT_END_OF_INPUT) {
+        if (unformat(i, "disable"))
+            enable_disable = 0;
+        else if (unformat(i, "enable"))
+            enable_disable = 1;
+        else
+            break;
     }
 
-  /* Construct the API message */
-  M (CDP_ENABLE_DISABLE, mp);
-  mp->enable_disable = enable_disable;
+    /* Construct the API message */
+    M(CDP_ENABLE_DISABLE, mp);
+    mp->enable_disable = enable_disable;
 
-  /* send it... */
-  S (mp);
+    /* send it... */
+    S(mp);
 
-  /* Wait for a reply... */
-  W (ret);
-  return ret;
+    /* Wait for a reply... */
+    W(ret);
+    return ret;
 }
 
 #include <cdp/cdp.api_test.c>

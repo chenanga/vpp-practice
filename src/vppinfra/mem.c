@@ -21,78 +21,78 @@
 
 __clib_export clib_mem_main_t clib_mem_main;
 
-__clib_export void *
-clib_mem_vm_map (void *base, uword size, clib_mem_page_sz_t log2_page_sz,
-		 char *fmt, ...)
+__clib_export void *clib_mem_vm_map(void *base, uword size, clib_mem_page_sz_t log2_page_sz, char *fmt, ...)
 {
-  va_list va;
-  void *rv;
-  u8 *s;
+    va_list va;
+    void   *rv;
+    u8     *s;
 
-  va_start (va, fmt);
-  s = va_format (0, fmt, &va);
-  vec_add1 (s, 0);
-  rv = clib_mem_vm_map_internal (base, log2_page_sz, size, -1, 0, (char *) s);
-  va_end (va);
-  vec_free (s);
-  return rv;
+    va_start(va, fmt);
+    s = va_format(0, fmt, &va);
+    vec_add1(s, 0);
+    rv = clib_mem_vm_map_internal(base, log2_page_sz, size, -1, 0, (char *) s);
+    va_end(va);
+    vec_free(s);
+    return rv;
 }
 
-__clib_export void *
-clib_mem_vm_map_stack (uword size, clib_mem_page_sz_t log2_page_sz,
-		       char *fmt, ...)
+__clib_export void *clib_mem_vm_map_stack(uword size, clib_mem_page_sz_t log2_page_sz, char *fmt, ...)
 {
-  va_list va;
-  void *rv;
-  u8 *s;
+    va_list va;
+    void   *rv;
+    u8     *s;
 
-  va_start (va, fmt);
-  s = va_format (0, fmt, &va);
-  vec_add1 (s, 0);
-  rv = clib_mem_vm_map_internal (0, log2_page_sz, size, -1, 0, (char *) s);
-  va_end (va);
-  vec_free (s);
-  return rv;
+    va_start(va, fmt);
+    s = va_format(0, fmt, &va);
+    vec_add1(s, 0);
+    rv = clib_mem_vm_map_internal(0, log2_page_sz, size, -1, 0, (char *) s);
+    va_end(va);
+    vec_free(s);
+    return rv;
 }
 
-__clib_export void *
-clib_mem_vm_map_shared (void *base, uword size, int fd, uword offset,
-			char *fmt, ...)
+__clib_export void *clib_mem_vm_map_shared(void *base, uword size, int fd, uword offset, char *fmt, ...)
 {
-  va_list va;
-  void *rv;
-  u8 *s;
-  va_start (va, fmt);
-  s = va_format (0, fmt, &va);
-  vec_add1 (s, 0);
-  rv = clib_mem_vm_map_internal (base, 0, size, fd, offset, (char *) s);
-  va_end (va);
-  vec_free (s);
-  return rv;
+    va_list va;
+    void   *rv;
+    u8     *s;
+    va_start(va, fmt);
+    s = va_format(0, fmt, &va);
+    vec_add1(s, 0);
+    rv = clib_mem_vm_map_internal(base, 0, size, fd, offset, (char *) s);
+    va_end(va);
+    vec_free(s);
+    return rv;
 }
 
-u8 *
-format_clib_mem_page_stats (u8 * s, va_list * va)
+u8 *format_clib_mem_page_stats(u8 *s, va_list *va)
 {
-  clib_mem_page_stats_t *stats = va_arg (*va, clib_mem_page_stats_t *);
-  u32 indent = format_get_indent (s) + 2;
+    clib_mem_page_stats_t *stats  = va_arg(*va, clib_mem_page_stats_t *);
+    u32                    indent = format_get_indent(s) + 2;
 
-  s = format (s, "page stats: page-size %U, total %lu, mapped %lu, "
-	      "not-mapped %lu", format_log2_page_size, stats->log2_page_sz,
-	      stats->total, stats->mapped, stats->not_mapped);
+    s = format(s,
+               "page stats: page-size %U, total %lu, mapped %lu, "
+               "not-mapped %lu",
+               format_log2_page_size,
+               stats->log2_page_sz,
+               stats->total,
+               stats->mapped,
+               stats->not_mapped);
 
-  if (stats->unknown)
-    s = format (s, ", unknown %lu", stats->unknown);
+    if (stats->unknown) s = format(s, ", unknown %lu", stats->unknown);
 
-  for (int i = 0; i < CLIB_MAX_NUMAS; i++)
-    if (stats->per_numa[i])
-      s = format (s, "\n%Unuma %u: %lu pages, %U bytes",
-		  format_white_space, indent, i,
-		  stats->per_numa[i],
-		  format_memory_size,
-		  stats->per_numa[i] << stats->log2_page_sz);
+    for (int i = 0; i < CLIB_MAX_NUMAS; i++)
+        if (stats->per_numa[i])
+            s = format(s,
+                       "\n%Unuma %u: %lu pages, %U bytes",
+                       format_white_space,
+                       indent,
+                       i,
+                       stats->per_numa[i],
+                       format_memory_size,
+                       stats->per_numa[i] << stats->log2_page_sz);
 
-  return s;
+    return s;
 }
 
 /*

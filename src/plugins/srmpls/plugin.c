@@ -20,7 +20,7 @@
 #include <vpp/app/version.h>
 
 // register a plugin
-VLIB_PLUGIN_REGISTER () = {
-  .version = VPP_BUILD_VER,
-  .description = "Segment Routing for MPLS plugin",
+VLIB_PLUGIN_REGISTER() = {
+    .version     = VPP_BUILD_VER,
+    .description = "Segment Routing for MPLS plugin",
 };

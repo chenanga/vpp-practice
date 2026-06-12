@@ -7,20 +7,17 @@
 
 #include <vppinfra/clib.h>
 
-typedef struct
-{
-  uword ip, sp;
-  uword offset;
-  char name[64];
-  const char *file_name;
-  u32 index;
-  u8 is_signal_frame;
+typedef struct {
+    uword       ip, sp;
+    uword       offset;
+    char        name[64];
+    const char *file_name;
+    u32         index;
+    u8          is_signal_frame;
 } clib_stack_frame_t;
 
-clib_stack_frame_t *clib_stack_frame_get (clib_stack_frame_t *);
+clib_stack_frame_t *clib_stack_frame_get(clib_stack_frame_t *);
 
-#define foreach_clib_stack_frame(sf)                                          \
-  for (clib_stack_frame_t _sf = {}, *sf = clib_stack_frame_get (&_sf); sf;    \
-       sf = clib_stack_frame_get (sf))
+#define foreach_clib_stack_frame(sf) for (clib_stack_frame_t _sf = {}, *sf = clib_stack_frame_get(&_sf); sf; sf = clib_stack_frame_get(sf))
 
 #endif /* __STACK_H__ */

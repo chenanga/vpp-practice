@@ -25,14 +25,12 @@
 #include <vppinfra/hash.h>
 #include <vppinfra/error.h>
 
-typedef struct
-{
-  u32 frame_queue_index;
+typedef struct {
+    u32 frame_queue_index;
 
-
-  /* convenience */
-  vlib_main_t *vlib_main;
-  vnet_main_t *vnet_main;
+    /* convenience */
+    vlib_main_t *vlib_main;
+    vnet_main_t *vnet_main;
 } handoffdemo_main_t;
 
 extern handoffdemo_main_t handoffdemo_main;

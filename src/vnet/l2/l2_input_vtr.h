@@ -23,27 +23,23 @@
 #include <vnet/l2/feat_bitmap.h>
 #include <vnet/l2/l2_vtr.h>
 
+typedef struct {
+    /*
+     *  The input vtr data is located in l2_output_config_t because
+     * the same config data is used for the egress EFP Filter check.
+     */
 
-typedef struct
-{
+    /* Next nodes for each feature */
+    u32 feat_next_node_index[32];
 
-  /*
-   *  The input vtr data is located in l2_output_config_t because
-   * the same config data is used for the egress EFP Filter check.
-   */
-
-  /* Next nodes for each feature */
-  u32 feat_next_node_index[32];
-
-  /* convenience variables */
-  vlib_main_t *vlib_main;
-  vnet_main_t *vnet_main;
+    /* convenience variables */
+    vlib_main_t *vlib_main;
+    vnet_main_t *vnet_main;
 } l2_invtr_main_t;
 
 extern l2_invtr_main_t l2_invtr_main;
 
 #endif /* included_vnet_l2_input_vtr_h */
-
 
 /*
  * fd.io coding-style-patch-verification: ON

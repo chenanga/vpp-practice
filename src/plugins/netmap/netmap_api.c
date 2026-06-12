@@ -30,61 +30,56 @@
 
 #include <vlibapi/api_helper_macros.h>
 
-#define foreach_vpe_api_msg                             \
-_(NETMAP_CREATE, netmap_create)                                         \
-_(NETMAP_DELETE, netmap_delete)                                         \
+#define foreach_vpe_api_msg         \
+    _(NETMAP_CREATE, netmap_create) \
+    _(NETMAP_DELETE, netmap_delete)
 
-static void
-vl_api_netmap_create_t_handler (vl_api_netmap_create_t * mp)
+static void vl_api_netmap_create_t_handler(vl_api_netmap_create_t *mp)
 {
-  vlib_main_t *vm = vlib_get_main ();
-  vl_api_netmap_create_reply_t *rmp;
-  int rv = 0;
-  u8 *if_name = NULL;
+    vlib_main_t                  *vm = vlib_get_main();
+    vl_api_netmap_create_reply_t *rmp;
+    int                           rv      = 0;
+    u8                           *if_name = NULL;
 
-  if_name = format (0, "%s", mp->netmap_if_name);
-  vec_add1 (if_name, 0);
+    if_name = format(0, "%s", mp->netmap_if_name);
+    vec_add1(if_name, 0);
 
-  rv =
-    netmap_create_if (vm, if_name, mp->use_random_hw_addr ? 0 : mp->hw_addr,
-		      mp->is_pipe, mp->is_master, 0);
+    rv = netmap_create_if(vm, if_name, mp->use_random_hw_addr ? 0 : mp->hw_addr, mp->is_pipe, mp->is_master, 0);
 
-  vec_free (if_name);
+    vec_free(if_name);
 
-  REPLY_MACRO (VL_API_NETMAP_CREATE_REPLY);
+    REPLY_MACRO(VL_API_NETMAP_CREATE_REPLY);
 }
 
-static void
-vl_api_netmap_delete_t_handler (vl_api_netmap_delete_t * mp)
+static void vl_api_netmap_delete_t_handler(vl_api_netmap_delete_t *mp)
 {
-  vlib_main_t *vm = vlib_get_main ();
-  vl_api_netmap_delete_reply_t *rmp;
-  int rv = 0;
-  u8 *if_name = NULL;
+    vlib_main_t                  *vm = vlib_get_main();
+    vl_api_netmap_delete_reply_t *rmp;
+    int                           rv      = 0;
+    u8                           *if_name = NULL;
 
-  if_name = format (0, "%s", mp->netmap_if_name);
-  vec_add1 (if_name, 0);
+    if_name = format(0, "%s", mp->netmap_if_name);
+    vec_add1(if_name, 0);
 
-  rv = netmap_delete_if (vm, if_name);
+    rv = netmap_delete_if(vm, if_name);
 
-  vec_free (if_name);
+    vec_free(if_name);
 
-  REPLY_MACRO (VL_API_NETMAP_DELETE_REPLY);
+    REPLY_MACRO(VL_API_NETMAP_DELETE_REPLY);
 }
 
 #include <netmap/netmap.api.c>
-static clib_error_t *
-netmap_api_hookup (vlib_main_t * vm)
+static clib_error_t *netmap_api_hookup(vlib_main_t *vm)
 {
-  /*
-   * Set up the (msg_name, crc, message-id) table
-   */
-  setup_message_id_table ();
+    /*
+     * Set up the (msg_name, crc, message-id) table
+     */
+    setup_message_id_table();
 
-  return 0;
+    return 0;
 }
 
-VLIB_API_INIT_FUNCTION (netmap_api_hookup);
+VLIB_API_INIT_FUNCTION(netmap_api_hookup);
 
 /*
  * fd.io coding-style-patch-verification: ON

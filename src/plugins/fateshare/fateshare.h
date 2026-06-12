@@ -24,15 +24,14 @@
 #include <vppinfra/hash.h>
 #include <vppinfra/error.h>
 
-typedef struct
-{
-  /* convenience */
-  vlib_main_t *vlib_main;
+typedef struct {
+    /* convenience */
+    vlib_main_t *vlib_main;
 
-  u8 *monitor_cmd;
-  u8 *monitor_logfile;
-  pid_t monitor_pid;
-  u8 **commands;
+    u8   *monitor_cmd;
+    u8   *monitor_logfile;
+    pid_t monitor_pid;
+    u8  **commands;
 } fateshare_main_t;
 
 extern fateshare_main_t fateshare_main;

@@ -15,11 +15,10 @@
 /*
  * MMIO Response
  */
-typedef struct
-{
-  u16 req_id;
-  u16 reg_off;
-  u32 reg_val;
+typedef struct {
+    u16 req_id;
+    u16 reg_off;
+    u32 reg_val;
 } ena_mmio_resp_t;
 
 #endif /* _ENA_DEFS_H_ */

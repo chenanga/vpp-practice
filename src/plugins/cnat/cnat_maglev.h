@@ -8,14 +8,13 @@
 #include <cnat/cnat_types.h>
 #include <cnat/cnat_translation.h>
 
-typedef struct
-{
-  /* offset & skip used for sorting, should be first */
-  u32 offset;
-  u32 skip;
-  u32 index;
+typedef struct {
+    /* offset & skip used for sorting, should be first */
+    u32 offset;
+    u32 skip;
+    u32 index;
 } cnat_maglev_perm_t;
 
-extern void cnat_translation_init_maglev (cnat_translation_t *ct);
+extern void cnat_translation_init_maglev(cnat_translation_t *ct);
 
 #endif

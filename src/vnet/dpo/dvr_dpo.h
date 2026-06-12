@@ -21,8 +21,7 @@
 /**
  * Control how the reinject is performed
  */
-typedef enum dvr_dpo_reinject_t_
-{
+typedef enum dvr_dpo_reinject_t_ {
     DVR_REINJECT_L2,
     DVR_REINJECT_L3,
 } __clib_packed dvr_dpo_reinject_t;
@@ -36,8 +35,7 @@ typedef enum dvr_dpo_reinject_t_
  * so it can pick up the necessary VLAN tags of the egress interface.
  * This re-injection is done with an output feature.
  */
-typedef struct dvr_dpo_t_
-{
+typedef struct dvr_dpo_t_ {
     /**
      * The Software interface index that the packets will output on
      */
@@ -62,9 +60,7 @@ typedef struct dvr_dpo_t_
 /* 8 bytes is a factor of cache line size so this struct will never span */
 STATIC_ASSERT_SIZEOF(dvr_dpo_t, 8);
 
-extern void dvr_dpo_add_or_lock (u32 sw_if_index,
-                                 dpo_proto_t dproto,
-                                 dpo_id_t *dpo);
+extern void dvr_dpo_add_or_lock(u32 sw_if_index, dpo_proto_t dproto, dpo_id_t *dpo);
 
 extern void dvr_dpo_module_init(void);
 
@@ -73,8 +69,7 @@ extern void dvr_dpo_module_init(void);
  */
 extern dvr_dpo_t *dvr_dpo_pool;
 
-static inline dvr_dpo_t *
-dvr_dpo_get (index_t index)
+static inline dvr_dpo_t *dvr_dpo_get(index_t index)
 {
     return (pool_elt_at_index(dvr_dpo_pool, index));
 }

@@ -16,15 +16,11 @@
 #ifndef SRC_VNET_SESSION_SESSION_SDL_H_
 #define SRC_VNET_SESSION_SESSION_SDL_H_
 
-clib_error_t *session_sdl_enable_disable (int enable);
+clib_error_t *session_sdl_enable_disable(int enable);
 
-typedef void (*session_sdl_table_walk_fn_t) (u32 fei, ip46_address_t *lcl_ip,
-					     u16 fp_len, u32 action_index,
-					     u32 fb_proto, u8 *tag, void *ctx);
-void session_sdl_table_walk4 (u32 srtg_handle, session_sdl_table_walk_fn_t fn,
-			      void *args);
-void session_sdl_table_walk6 (u32 srtg_handle, session_sdl_table_walk_fn_t fn,
-			      void *args);
+typedef void (*session_sdl_table_walk_fn_t)(u32 fei, ip46_address_t *lcl_ip, u16 fp_len, u32 action_index, u32 fb_proto, u8 *tag, void *ctx);
+void session_sdl_table_walk4(u32 srtg_handle, session_sdl_table_walk_fn_t fn, void *args);
+void session_sdl_table_walk6(u32 srtg_handle, session_sdl_table_walk_fn_t fn, void *args);
 
 #endif /* SRC_VNET_SESSION_SESSION_SDL_H_ */
 /*

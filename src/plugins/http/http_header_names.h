@@ -8,13 +8,12 @@
 #include <http/http.h>
 
 static http_token_t http_header_names[] = {
-#define _(sym, str) { http_token_lit (str) },
-  foreach_http_header_name
+#define _(sym, str) {http_token_lit(str)},
+    foreach_http_header_name
 #undef _
 };
 
-#define http_header_name_token(e)                                             \
-  http_header_names[e].base, http_header_names[e].len
+#define http_header_name_token(e) http_header_names[e].base, http_header_names[e].len
 
 #define http_header_name_str(e) http_header_names[e].base
 

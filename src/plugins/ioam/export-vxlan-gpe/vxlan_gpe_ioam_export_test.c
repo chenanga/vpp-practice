@@ -31,42 +31,39 @@
 #include <ioam/export-vxlan-gpe/vxlan_gpe_ioam_export.api_enum.h>
 #include <ioam/export-vxlan-gpe/vxlan_gpe_ioam_export.api_types.h>
 
-typedef struct
-{
-  /* API message ID base */
-  u16 msg_id_base;
-  vat_main_t *vat_main;
+typedef struct {
+    /* API message ID base */
+    u16         msg_id_base;
+    vat_main_t *vat_main;
 } vxlan_gpe_ioam_export_test_main_t;
 
 vxlan_gpe_ioam_export_test_main_t vxlan_gpe_ioam_export_test_main;
 
-static int
-api_vxlan_gpe_ioam_export_enable_disable (vat_main_t * vam)
+static int api_vxlan_gpe_ioam_export_enable_disable(vat_main_t *vam)
 {
-  unformat_input_t *i = vam->input;
-  int is_disable = 0;
-  vl_api_vxlan_gpe_ioam_export_enable_disable_t *mp;
-  int ret;
+    unformat_input_t                              *i          = vam->input;
+    int                                            is_disable = 0;
+    vl_api_vxlan_gpe_ioam_export_enable_disable_t *mp;
+    int                                            ret;
 
-  /* Parse args required to build the message */
-  while (unformat_check_input (i) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (i, "disable"))
-	is_disable = 1;
-      else
-	break;
+    /* Parse args required to build the message */
+    while (unformat_check_input(i) != UNFORMAT_END_OF_INPUT) {
+        if (unformat(i, "disable"))
+            is_disable = 1;
+        else
+            break;
     }
 
-  /* Construct the API message */
-  M (VXLAN_GPE_IOAM_EXPORT_ENABLE_DISABLE, mp);
-  mp->is_disable = is_disable;
+    /* Construct the API message */
+    M(VXLAN_GPE_IOAM_EXPORT_ENABLE_DISABLE, mp);
+    mp->is_disable = is_disable;
 
-  /* send it... */
-  S (mp);
+    /* send it... */
+    S(mp);
 
-  /* Wait for a reply... */
-  W (ret);
-  return ret;
+    /* Wait for a reply... */
+    W(ret);
+    return ret;
 }
 
 /* Override generated plugin register symbol */

@@ -25,21 +25,20 @@
 #include <vppinfra/hash.h>
 #include <vppinfra/error.h>
 
-typedef struct
-{
-  /* API message ID base */
-  u16 msg_id_base;
+typedef struct {
+    /* API message ID base */
+    u16 msg_id_base;
 
-  /*
-   * cached reply data
-   * traces [client_id][thread_id][trace]
-   */
-  vlib_trace_header_t ****traces;
+    /*
+     * cached reply data
+     * traces [client_id][thread_id][trace]
+     */
+    vlib_trace_header_t ****traces;
 
-  /* convenience */
-  vlib_main_t *vlib_main;
-  vnet_main_t *vnet_main;
-  ethernet_main_t *ethernet_main;
+    /* convenience */
+    vlib_main_t     *vlib_main;
+    vnet_main_t     *vnet_main;
+    ethernet_main_t *ethernet_main;
 } tracedump_main_t;
 
 extern tracedump_main_t tracedump_main;

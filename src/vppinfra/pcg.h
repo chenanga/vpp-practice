@@ -43,43 +43,36 @@
 #define clib_pcg64i_random_r  clib_pcg_setseq_64_rxs_m_xs_64_random_r
 #define clib_pcg64i_srandom_r clib_pcg_setseq_64_srandom_r
 
-typedef struct
-{
-  u64 state;
-  u64 inc;
+typedef struct {
+    u64 state;
+    u64 inc;
 } clib_pcg_state_setseq_64_t;
 
 typedef clib_pcg_state_setseq_64_t clib_pcg64i_random_t;
 
-static_always_inline void
-clib_pcg_setseq_64_step_r (clib_pcg_state_setseq_64_t *rng)
+static_always_inline void clib_pcg_setseq_64_step_r(clib_pcg_state_setseq_64_t *rng)
 {
-  rng->state = rng->state * 6364136223846793005ULL + rng->inc;
+    rng->state = rng->state * 6364136223846793005ULL + rng->inc;
 }
 
-static_always_inline u64
-clib_pcg_output_rxs_m_xs_64_64 (u64 state)
+static_always_inline u64 clib_pcg_output_rxs_m_xs_64_64(u64 state)
 {
-  u64 word =
-    ((state >> ((state >> 59u) + 5u)) ^ state) * 12605985483714917081ull;
-  return (word >> 43u) ^ word;
+    u64 word = ((state >> ((state >> 59u) + 5u)) ^ state) * 12605985483714917081ull;
+    return (word >> 43u) ^ word;
 }
 
-static_always_inline u64
-clib_pcg_setseq_64_rxs_m_xs_64_random_r (clib_pcg_state_setseq_64_t *rng)
+static_always_inline u64 clib_pcg_setseq_64_rxs_m_xs_64_random_r(clib_pcg_state_setseq_64_t *rng)
 {
-  u64 oldstate = rng->state;
-  clib_pcg_setseq_64_step_r (rng);
-  return clib_pcg_output_rxs_m_xs_64_64 (oldstate);
+    u64 oldstate = rng->state;
+    clib_pcg_setseq_64_step_r(rng);
+    return clib_pcg_output_rxs_m_xs_64_64(oldstate);
 }
 
-static_always_inline void
-clib_pcg_setseq_64_srandom_r (clib_pcg_state_setseq_64_t *rng, u64 initstate,
-			      u64 initseq)
+static_always_inline void clib_pcg_setseq_64_srandom_r(clib_pcg_state_setseq_64_t *rng, u64 initstate, u64 initseq)
 {
-  rng->state = 0U;
-  rng->inc = (initseq << 1u) | 1u;
-  clib_pcg_setseq_64_step_r (rng);
-  rng->state += initstate;
-  clib_pcg_setseq_64_step_r (rng);
+    rng->state = 0U;
+    rng->inc   = (initseq << 1u) | 1u;
+    clib_pcg_setseq_64_step_r(rng);
+    rng->state += initstate;
+    clib_pcg_setseq_64_step_r(rng);
 }

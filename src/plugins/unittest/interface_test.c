@@ -15,53 +15,45 @@
 
 #include <vnet/vnet.h>
 
-static clib_error_t *
-test_interface_command_fn (vlib_main_t * vm,
-			   unformat_input_t * input, vlib_cli_command_t * cmd)
+static clib_error_t *test_interface_command_fn(vlib_main_t *vm, unformat_input_t *input, vlib_cli_command_t *cmd)
 {
-  vnet_hw_interface_flags_t flags;
-  vnet_main_t *vnm;
-  u32 sw_if_index;
+    vnet_hw_interface_flags_t flags;
+    vnet_main_t              *vnm;
+    u32                       sw_if_index;
 
-  flags = VNET_HW_INTERFACE_FLAG_NONE;
-  sw_if_index = ~0;
-  vnm = vnet_get_main ();
+    flags       = VNET_HW_INTERFACE_FLAG_NONE;
+    sw_if_index = ~0;
+    vnm         = vnet_get_main();
 
-  while (unformat_check_input (input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat
-	  (input, "%U", unformat_vnet_sw_interface, vnm, &sw_if_index))
-	;
-      else if (unformat (input, "up"))
-	flags = VNET_HW_INTERFACE_FLAG_LINK_UP;
-      else if (unformat (input, "down"))
-	;
-      else
-	break;
+    while (unformat_check_input(input) != UNFORMAT_END_OF_INPUT) {
+        if (unformat(input, "%U", unformat_vnet_sw_interface, vnm, &sw_if_index))
+            ;
+        else if (unformat(input, "up"))
+            flags = VNET_HW_INTERFACE_FLAG_LINK_UP;
+        else if (unformat(input, "down"))
+            ;
+        else
+            break;
     }
 
-  if (~0 != sw_if_index)
-    {
-      vnet_sw_interface_t *sw;
+    if (~0 != sw_if_index) {
+        vnet_sw_interface_t *sw;
 
-      sw = vnet_get_sw_interface (vnm, sw_if_index);
+        sw = vnet_get_sw_interface(vnm, sw_if_index);
 
-      vnet_hw_interface_set_flags (vnm, sw->hw_if_index, flags);
+        vnet_hw_interface_set_flags(vnm, sw->hw_if_index, flags);
     }
-  else
-    {
-      return clib_error_return (0, "unknown interface `%U'",
-				format_unformat_error, input);
+    else {
+        return clib_error_return(0, "unknown interface `%U'", format_unformat_error, input);
     }
 
-  return (NULL);
+    return (NULL);
 }
 
-VLIB_CLI_COMMAND (test_interface_command, static) =
-{
-  .path = "test interface link-state",
-  .short_help = "test interface link-state <interface> [up] [down]",
-  .function = test_interface_command_fn,
+VLIB_CLI_COMMAND(test_interface_command, static) = {
+    .path       = "test interface link-state",
+    .short_help = "test interface link-state <interface> [up] [down]",
+    .function   = test_interface_command_fn,
 };
 
 /*

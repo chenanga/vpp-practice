@@ -30,35 +30,34 @@
 
 /**
  */
-typedef struct l3xc_t_
-{
-  CLIB_CACHE_LINE_ALIGN_MARK (cacheline0);
-  /**
-   * Linkage into the FIB graph
-   */
-  fib_node_t l3xc_node;
+typedef struct l3xc_t_ {
+    CLIB_CACHE_LINE_ALIGN_MARK(cacheline0);
+    /**
+     * Linkage into the FIB graph
+     */
+    fib_node_t l3xc_node;
 
-  /**
-   * The path-list describing how to forward in case of a match
-   */
-  fib_node_index_t l3xc_pl;
+    /**
+     * The path-list describing how to forward in case of a match
+     */
+    fib_node_index_t l3xc_pl;
 
-  fib_protocol_t l3xc_proto;
+    fib_protocol_t l3xc_proto;
 
-  /**
-   * Sibling index on the path-list
-   */
-  u32 l3xc_sibling;
+    /**
+     * Sibling index on the path-list
+     */
+    u32 l3xc_sibling;
 
-  /**
-   * The input interface
-   */
-  u32 l3xc_sw_if_index;
+    /**
+     * The input interface
+     */
+    u32 l3xc_sw_if_index;
 
-  /**
-   * DPO for forwarding
-   */
-  dpo_id_t l3xc_dpo;
+    /**
+     * DPO for forwarding
+     */
+    dpo_id_t l3xc_dpo;
 } l3xc_t;
 
 /**
@@ -69,8 +68,7 @@ typedef struct l3xc_t_
  * @param rpaths The set of paths to add to the forwarding set
  * @return error code
  */
-extern int l3xc_update (u32 sw_if_index,
-			u8 is_ip6, const fib_route_path_t * rpaths);
+extern int l3xc_update(u32 sw_if_index, u8 is_ip6, const fib_route_path_t *rpaths);
 
 /**
  * Delete an L3XC.
@@ -78,32 +76,31 @@ extern int l3xc_update (u32 sw_if_index,
  * @param sw_if_index the input interface
  * @param is_ipv6 - 0 if ip4, 1 if ip6
  */
-extern int l3xc_delete (u32 sw_if_index, u8 is_ip6);
+extern int l3xc_delete(u32 sw_if_index, u8 is_ip6);
 
 /**
  * Callback function invoked during a walk of all policies
  */
-typedef int (*l3xc_walk_cb_t) (index_t l3xci, void *ctx);
+typedef int (*l3xc_walk_cb_t)(index_t l3xci, void *ctx);
 
 /**
  * Walk/visit each of the L3XC policies
  */
-extern void l3xc_walk (l3xc_walk_cb_t cb, void *ctx);
+extern void l3xc_walk(l3xc_walk_cb_t cb, void *ctx);
 
 /**
  * Find a L3 XC object from an interface and FIB protocol
  */
-extern index_t l3xc_find (u32 sw_if_index, fib_protocol_t fproto);
+extern index_t l3xc_find(u32 sw_if_index, fib_protocol_t fproto);
 
 /**
  * Data-plane functions
  */
 extern l3xc_t *l3xc_pool;
 
-static_always_inline l3xc_t *
-l3xc_get (u32 index)
+static_always_inline l3xc_t *l3xc_get(u32 index)
 {
-  return (pool_elt_at_index (l3xc_pool, index));
+    return (pool_elt_at_index(l3xc_pool, index));
 }
 
 extern vlib_node_registration_t l3xc_ip4_node;

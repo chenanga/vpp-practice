@@ -16,11 +16,14 @@
 
 #include <vnet/fib/fib_node.h>
 
-int ip_session_redirect_add (vlib_main_t *vm, u32 table_index,
-			     u32 opaque_index, dpo_proto_t proto, int is_punt,
-			     const u8 *match, const fib_route_path_t *rpaths);
-int ip_session_redirect_del (vlib_main_t *vm, u32 table_index,
-			     const u8 *match);
+int ip_session_redirect_add(vlib_main_t            *vm,
+                            u32                     table_index,
+                            u32                     opaque_index,
+                            dpo_proto_t             proto,
+                            int                     is_punt,
+                            const u8               *match,
+                            const fib_route_path_t *rpaths);
+int ip_session_redirect_del(vlib_main_t *vm, u32 table_index, const u8 *match);
 
 #endif /* IP_SESSION_REDIRECT_H_ */
 

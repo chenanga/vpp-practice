@@ -29,22 +29,17 @@
 /**
  * @brief set ip6 reassembly configuration
  */
-vnet_api_error_t ip6_sv_reass_set (u32 timeout_ms, u32 max_reassemblies,
-				   u32 max_reassembly_length,
-				   u32 expire_walk_interval_ms);
+vnet_api_error_t ip6_sv_reass_set(u32 timeout_ms, u32 max_reassemblies, u32 max_reassembly_length, u32 expire_walk_interval_ms);
 
 /**
  * @brief get ip6 reassembly configuration
  */
-vnet_api_error_t ip6_sv_reass_get (u32 * timeout_ms, u32 * max_reassemblies,
-				   u32 * max_reassembly_length,
-				   u32 * expire_walk_interval_ms);
+vnet_api_error_t ip6_sv_reass_get(u32* timeout_ms, u32* max_reassemblies, u32* max_reassembly_length, u32* expire_walk_interval_ms);
 
-vnet_api_error_t ip6_sv_reass_enable_disable (u32 sw_if_index,
-					      u8 enable_disable);
+vnet_api_error_t ip6_sv_reass_enable_disable(u32 sw_if_index, u8 enable_disable);
 
-int ip6_sv_reass_enable_disable_with_refcnt (u32 sw_if_index, int is_enable);
-uword ip6_sv_reass_custom_context_register_next_node (uword node_index);
+int   ip6_sv_reass_enable_disable_with_refcnt(u32 sw_if_index, int is_enable);
+uword ip6_sv_reass_custom_context_register_next_node(uword node_index);
 
 #endif /* __included_ip6_sv_reass_h */
 

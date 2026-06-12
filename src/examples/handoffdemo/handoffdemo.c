@@ -22,10 +22,9 @@
 
 handoffdemo_main_t handoffdemo_main;
 
-VLIB_PLUGIN_REGISTER () =
-{
-  .version = VPP_BUILD_VER,
-  .description = "handoff demo plugin",
+VLIB_PLUGIN_REGISTER() = {
+    .version     = VPP_BUILD_VER,
+    .description = "handoff demo plugin",
 };
 
 /*

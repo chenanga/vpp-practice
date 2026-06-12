@@ -20,18 +20,17 @@
 
 #include <vnet/ip/icmp46_packet.h>
 
-static_always_inline u64
-icmp_type_is_error_message (u8 icmp_type)
+static_always_inline u64 icmp_type_is_error_message(u8 icmp_type)
 {
-  int bmp = 0;
-  bmp |= 1 << ICMP4_destination_unreachable;
-  bmp |= 1 << ICMP4_time_exceeded;
-  bmp |= 1 << ICMP4_parameter_problem;
-  bmp |= 1 << ICMP4_source_quench;
-  bmp |= 1 << ICMP4_redirect;
-  bmp |= 1 << ICMP4_alternate_host_address;
+    int bmp = 0;
+    bmp |= 1 << ICMP4_destination_unreachable;
+    bmp |= 1 << ICMP4_time_exceeded;
+    bmp |= 1 << ICMP4_parameter_problem;
+    bmp |= 1 << ICMP4_source_quench;
+    bmp |= 1 << ICMP4_redirect;
+    bmp |= 1 << ICMP4_alternate_host_address;
 
-  return (1ULL << icmp_type) & bmp;
+    return (1ULL << icmp_type) & bmp;
 }
 
 #endif /* included_nat_inlines_h__ */

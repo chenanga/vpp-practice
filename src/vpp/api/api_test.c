@@ -30,70 +30,61 @@
 /* Declare message IDs */
 #include <vnet/format_fns.h>
 
-typedef struct
-{
-  /* API message ID base */
-  u16 msg_id_base;
-  vat_main_t *vat_main;
+typedef struct {
+    /* API message ID base */
+    u16         msg_id_base;
+    vat_main_t *vat_main;
 } vpe_test_main_t;
 
 vpe_test_main_t vpe_test_main;
 
-static int
-api_show_version (vat_main_t *vam)
+static int api_show_version(vat_main_t *vam)
 {
-  vl_api_show_version_t *mp;
-  int ret;
+    vl_api_show_version_t *mp;
+    int                    ret;
 
-  M (SHOW_VERSION, mp);
+    M(SHOW_VERSION, mp);
 
-  S (mp);
-  W (ret);
-  return ret;
+    S(mp);
+    W(ret);
+    return ret;
 }
 
-static int
-api_log_dump (vat_main_t *vam)
+static int api_log_dump(vat_main_t *vam)
 {
-  /* Not yet implemented */
-  return -1;
+    /* Not yet implemented */
+    return -1;
 }
 
-static int
-api_show_vpe_system_time (vat_main_t *vam)
+static int api_show_vpe_system_time(vat_main_t *vam)
 {
-  /* Not yet implemented */
-  return -1;
+    /* Not yet implemented */
+    return -1;
 }
 
-static void
-vl_api_show_version_reply_t_handler (vl_api_show_version_reply_t *mp)
+static void vl_api_show_version_reply_t_handler(vl_api_show_version_reply_t *mp)
 {
-  vat_main_t *vam = &vat_main;
-  i32 retval = ntohl (mp->retval);
+    vat_main_t *vam    = &vat_main;
+    i32         retval = ntohl(mp->retval);
 
-  if (retval >= 0)
-    {
-      errmsg ("        program: %s", mp->program);
-      errmsg ("        version: %s", mp->version);
-      errmsg ("     build date: %s", mp->build_date);
-      errmsg ("build directory: %s", mp->build_directory);
+    if (retval >= 0) {
+        errmsg("        program: %s", mp->program);
+        errmsg("        version: %s", mp->version);
+        errmsg("     build date: %s", mp->build_date);
+        errmsg("build directory: %s", mp->build_directory);
     }
-  vam->retval = retval;
-  vam->result_ready = 1;
+    vam->retval       = retval;
+    vam->result_ready = 1;
 }
 
-static void
-vl_api_log_details_t_handler (vl_api_log_details_t *mp)
+static void vl_api_log_details_t_handler(vl_api_log_details_t *mp)
 {
-  /* Not yet implemented */
+    /* Not yet implemented */
 }
 
-static void
-vl_api_show_vpe_system_time_reply_t_handler (
-  vl_api_show_vpe_system_time_reply_t *mp)
+static void vl_api_show_vpe_system_time_reply_t_handler(vl_api_show_vpe_system_time_reply_t *mp)
 {
-  /* Not yet implemented */
+    /* Not yet implemented */
 }
 
 #include <vpp/api/vpe.api_test.c>

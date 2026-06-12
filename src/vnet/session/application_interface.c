@@ -37,127 +37,105 @@
  *  etc...
  *
  */
-uword
-unformat_vnet_uri (unformat_input_t * input, va_list * args)
+uword unformat_vnet_uri(unformat_input_t *input, va_list *args)
 {
-  session_endpoint_cfg_t *sep = va_arg (*args, session_endpoint_cfg_t *);
-  u32 transport_proto = 0, port;
+    session_endpoint_cfg_t *sep             = va_arg(*args, session_endpoint_cfg_t *);
+    u32                     transport_proto = 0, port;
 
-  if (unformat (input, "%U://%U/%d", unformat_transport_proto,
-		&transport_proto, unformat_ip4_address, &sep->ip.ip4, &port))
-    {
-      sep->transport_proto = transport_proto;
-      sep->port = clib_host_to_net_u16 (port);
-      sep->is_ip4 = 1;
-      return 1;
+    if (unformat(input, "%U://%U/%d", unformat_transport_proto, &transport_proto, unformat_ip4_address, &sep->ip.ip4, &port)) {
+        sep->transport_proto = transport_proto;
+        sep->port            = clib_host_to_net_u16(port);
+        sep->is_ip4          = 1;
+        return 1;
     }
-  else if (unformat (input, "%U://%U/%d", unformat_transport_proto,
-		     &transport_proto, unformat_ip6_address, &sep->ip.ip6,
-		     &port))
-    {
-      sep->transport_proto = transport_proto;
-      sep->port = clib_host_to_net_u16 (port);
-      sep->is_ip4 = 0;
-      return 1;
+    else if (unformat(input, "%U://%U/%d", unformat_transport_proto, &transport_proto, unformat_ip6_address, &sep->ip.ip6, &port)) {
+        sep->transport_proto = transport_proto;
+        sep->port            = clib_host_to_net_u16(port);
+        sep->is_ip4          = 0;
+        return 1;
     }
-  else if (unformat (input, "%U://session/%lu", unformat_transport_proto,
-		     &transport_proto, &sep->parent_handle))
-    {
-      sep->transport_proto = transport_proto;
-      sep->ip.ip4.as_u32 = 1;	/* ip need to be non zero in vnet */
-      return 1;
+    else if (unformat(input, "%U://session/%lu", unformat_transport_proto, &transport_proto, &sep->parent_handle)) {
+        sep->transport_proto = transport_proto;
+        sep->ip.ip4.as_u32   = 1; /* ip need to be non zero in vnet */
+        return 1;
     }
-  return 0;
+    return 0;
 }
 
-static u8 *cache_uri;
+static u8                     *cache_uri;
 static session_endpoint_cfg_t *cache_sep;
 
-session_error_t
-parse_uri (char *uri, session_endpoint_cfg_t *sep)
+session_error_t parse_uri(char *uri, session_endpoint_cfg_t *sep)
 {
-  unformat_input_t _input, *input = &_input;
+    unformat_input_t _input, *input = &_input;
 
-  if (cache_uri && !strncmp (uri, (char *) cache_uri, vec_len (cache_uri)))
-    {
-      *sep = *cache_sep;
-      return 0;
+    if (cache_uri && !strncmp(uri, (char *) cache_uri, vec_len(cache_uri))) {
+        *sep = *cache_sep;
+        return 0;
     }
 
-  /* Make sure */
-  uri = (char *) format (0, "%s%c", uri, 0);
+    /* Make sure */
+    uri = (char *) format(0, "%s%c", uri, 0);
 
-  /* Parse uri */
-  unformat_init_string (input, uri, strlen (uri));
-  if (!unformat (input, "%U", unformat_vnet_uri, sep))
-    {
-      unformat_free (input);
-      return SESSION_E_INVALID;
+    /* Parse uri */
+    unformat_init_string(input, uri, strlen(uri));
+    if (!unformat(input, "%U", unformat_vnet_uri, sep)) {
+        unformat_free(input);
+        return SESSION_E_INVALID;
     }
-  unformat_free (input);
+    unformat_free(input);
 
-  vec_free (cache_uri);
-  cache_uri = (u8 *) uri;
-  if (cache_sep)
-    clib_mem_free (cache_sep);
-  cache_sep = clib_mem_alloc (sizeof (*sep));
-  *cache_sep = *sep;
+    vec_free(cache_uri);
+    cache_uri = (u8 *) uri;
+    if (cache_sep) clib_mem_free(cache_sep);
+    cache_sep  = clib_mem_alloc(sizeof(*sep));
+    *cache_sep = *sep;
 
-  return 0;
+    return 0;
 }
 
-session_error_t
-vnet_bind_uri (vnet_listen_args_t *a)
+session_error_t vnet_bind_uri(vnet_listen_args_t *a)
 {
-  session_endpoint_cfg_t sep = SESSION_ENDPOINT_CFG_NULL;
-  int rv;
+    session_endpoint_cfg_t sep = SESSION_ENDPOINT_CFG_NULL;
+    int                    rv;
 
-  rv = parse_uri (a->uri, &sep);
-  if (rv)
-    return rv;
-  sep.app_wrk_index = 0;
-  clib_memcpy (&a->sep_ext, &sep, sizeof (sep));
-  return vnet_listen (a);
+    rv = parse_uri(a->uri, &sep);
+    if (rv) return rv;
+    sep.app_wrk_index = 0;
+    clib_memcpy(&a->sep_ext, &sep, sizeof(sep));
+    return vnet_listen(a);
 }
 
-session_error_t
-vnet_unbind_uri (vnet_unlisten_args_t *a)
+session_error_t vnet_unbind_uri(vnet_unlisten_args_t *a)
 {
-  session_endpoint_cfg_t sep = SESSION_ENDPOINT_CFG_NULL;
-  application_t *app;
-  session_t *listener;
-  u32 table_index;
-  session_error_t rv;
+    session_endpoint_cfg_t sep = SESSION_ENDPOINT_CFG_NULL;
+    application_t         *app;
+    session_t             *listener;
+    u32                    table_index;
+    session_error_t        rv;
 
-  if ((rv = parse_uri (a->uri, &sep)))
-    return rv;
+    if ((rv = parse_uri(a->uri, &sep))) return rv;
 
-  app = application_get (a->app_index);
-  if (!app)
-    return SESSION_E_INVALID;
+    app = application_get(a->app_index);
+    if (!app) return SESSION_E_INVALID;
 
-  table_index = application_session_table (app, fib_ip_proto (!sep.is_ip4));
-  listener = session_lookup_listener (table_index,
-				      (session_endpoint_t *) & sep);
-  if (!listener)
-    return SESSION_E_ADDR_NOT_IN_USE;
-  a->handle = listen_session_get_handle (listener);
-  return vnet_unlisten (a);
+    table_index = application_session_table(app, fib_ip_proto(!sep.is_ip4));
+    listener    = session_lookup_listener(table_index, (session_endpoint_t *) &sep);
+    if (!listener) return SESSION_E_ADDR_NOT_IN_USE;
+    a->handle = listen_session_get_handle(listener);
+    return vnet_unlisten(a);
 }
 
-session_error_t
-vnet_connect_uri (vnet_connect_args_t *a)
+session_error_t vnet_connect_uri(vnet_connect_args_t *a)
 {
-  session_endpoint_cfg_t sep = SESSION_ENDPOINT_CFG_NULL;
-  session_error_t rv;
+    session_endpoint_cfg_t sep = SESSION_ENDPOINT_CFG_NULL;
+    session_error_t        rv;
 
-  if ((rv = parse_uri (a->uri, &sep)))
-    return rv;
+    if ((rv = parse_uri(a->uri, &sep))) return rv;
 
-  clib_memcpy (&a->sep_ext, &sep, sizeof (sep));
-  if ((rv = vnet_connect (a)))
-    return rv;
-  return 0;
+    clib_memcpy(&a->sep_ext, &sep, sizeof(sep));
+    if ((rv = vnet_connect(a))) return rv;
+    return 0;
 }
 
 /*

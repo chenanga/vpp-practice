@@ -42,7 +42,7 @@
 
 /* Define signed and unsigned 8, 16, 32, and 64 bit types
    and machine signed/unsigned word for all architectures. */
-typedef signed char i8;
+typedef signed char  i8;
 typedef signed short i16;
 
 /* Avoid conflicts with Linux asm/types.h when __KERNEL__ */
@@ -51,29 +51,29 @@ typedef signed short i16;
 #include <asm/types.h>
 #define CLIB_AVOID_CLASH_WITH_LINUX_TYPES
 
-#else /* ! CLIB_LINUX_KERNEL */
+#else  /* ! CLIB_LINUX_KERNEL */
 
-typedef unsigned char u8;
+typedef unsigned char  u8;
 typedef unsigned short u16;
 #endif /* ! CLIB_LINUX_KERNEL */
 
-typedef signed __int128 i128;
+typedef signed __int128   i128;
 typedef unsigned __int128 u128;
 
-#if (defined(i386) || (defined(_mips) && __mips != 64) || defined(powerpc) || defined (__SPU__) || defined(__sparc__) || defined(__arm__) || defined (__xtensa__) || defined(__TMS320C6X__))
-typedef signed int i32;
+#if (defined(i386) || (defined(_mips) && __mips != 64) || defined(powerpc) || defined(__SPU__) || defined(__sparc__) || defined(__arm__) \
+     || defined(__xtensa__) || defined(__TMS320C6X__))
+typedef signed int       i32;
 typedef signed long long i64;
 
 #ifndef CLIB_AVOID_CLASH_WITH_LINUX_TYPES
-typedef unsigned int u32;
+typedef unsigned int       u32;
 typedef unsigned long long u64;
 #endif /* CLIB_AVOID_CLASH_WITH_LINUX_TYPES */
 
-#elif defined(alpha) || (defined(_mips) && __mips == 64) ||                   \
-  defined(__x86_64__) || defined(__powerpc64__) || defined(__aarch64__) ||    \
-  (defined(__riscv) && __riscv_xlen == 64)
-typedef signed int i32;
-typedef signed long i64;
+#elif defined(alpha) || (defined(_mips) && __mips == 64) || defined(__x86_64__) || defined(__powerpc64__) || defined(__aarch64__) \
+    || (defined(__riscv) && __riscv_xlen == 64)
+typedef signed int     i32;
+typedef signed long    i64;
 
 #define log2_uword_bits 6
 #if defined(_mips)
@@ -83,8 +83,8 @@ typedef signed long i64;
 #endif
 
 #ifndef CLIB_AVOID_CLASH_WITH_LINUX_TYPES
-typedef unsigned int u32;
-typedef unsigned long u64;
+typedef unsigned int   u32;
+typedef unsigned long  u64;
 #endif /* CLIB_AVOID_CLASH_WITH_LINUX_TYPES */
 
 #else
@@ -146,30 +146,27 @@ typedef u32 clib_address_t;
    MIPS is currently the only machine that can have different sized
    pointers and machine words (but only when compiling with 64 bit
    registers and 32 bit pointers). */
-static inline __attribute__ ((always_inline)) uword
-pointer_to_uword (const void *p)
+static inline __attribute__((always_inline)) uword pointer_to_uword(const void *p)
 {
-  return (uword) (clib_address_t) p;
+    return (uword) (clib_address_t) p;
 }
 
-static inline __attribute__ ((always_inline)) uword
-pointer_is_aligned (void *p, uword align)
+static inline __attribute__((always_inline)) uword pointer_is_aligned(void *p, uword align)
 {
-  if ((pointer_to_uword (p) & (align - 1)) == 0)
-    return 1;
-  return 0;
+    if ((pointer_to_uword(p) & (align - 1)) == 0) return 1;
+    return 0;
 }
 
-#define uword_to_pointer(u,type) ((type) (clib_address_t) (u))
+#define uword_to_pointer(u, type) ((type) (clib_address_t) (u))
 
 /* Any type: can be either word or pointer. */
 typedef word any;
 
 /* Floating point types. */
 typedef double f64;
-typedef float f32;
+typedef float  f32;
 
-typedef __complex__ float cf32;
+typedef __complex__ float  cf32;
 typedef __complex__ double cf64;
 
 /* Floating point word size. */
@@ -179,37 +176,29 @@ typedef f64 fword;
      clib_mem_unaligned (p, u64) = 99
      clib_mem_unaligned (p, u64) += 99 */
 
-#define clib_mem_unaligned(pointer,type) \
-  (((struct { CLIB_PACKED (type _data); } *) (pointer))->_data)
+#define clib_mem_unaligned(pointer, type) (((struct { CLIB_PACKED(type _data); } *) (pointer))->_data)
 
 /* Access memory with specified alignment depending on align argument.
    As with clib_mem_unaligned, may be used as {r,l}value. */
-#define clib_mem_aligned(addr,type,align)		\
-  (((struct {						\
-       type _data					\
-       __attribute__ ((aligned (align), packed));	\
-    } *) (addr))->_data)
+#define clib_mem_aligned(addr, type, align) (((struct { type _data __attribute__((aligned(align), packed)); } *) (addr))->_data)
 
-typedef u16 u16u __attribute__ ((aligned (1), __may_alias__));
-typedef u32 u32u __attribute__ ((aligned (1), __may_alias__));
-typedef u64 u64u __attribute__ ((aligned (1), __may_alias__));
-typedef i16 i16u __attribute__ ((aligned (1), __may_alias__));
-typedef i32 i32u __attribute__ ((aligned (1), __may_alias__));
-typedef i64 i64u __attribute__ ((aligned (1), __may_alias__));
-typedef word wordu __attribute__ ((aligned (1), __may_alias__));
-typedef uword uwordu __attribute__ ((aligned (1), __may_alias__));
+typedef u16   u16u __attribute__((aligned(1), __may_alias__));
+typedef u32   u32u __attribute__((aligned(1), __may_alias__));
+typedef u64   u64u __attribute__((aligned(1), __may_alias__));
+typedef i16   i16u __attribute__((aligned(1), __may_alias__));
+typedef i32   i32u __attribute__((aligned(1), __may_alias__));
+typedef i64   i64u __attribute__((aligned(1), __may_alias__));
+typedef word  wordu __attribute__((aligned(1), __may_alias__));
+typedef uword uwordu __attribute__((aligned(1), __may_alias__));
 
-#define foreach_int(__var, ...)                                               \
-  for (int __int_array[] = { __VA_ARGS__, 0 }, *__int_ptr = __int_array,      \
-	   __var = *__int_ptr;                                                \
-       __int_ptr - (ARRAY_LEN (__int_array) - 1) < __int_array;               \
-       __var = *++__int_ptr)
+#define foreach_int(__var, ...)                                                                                                                      \
+    for (int __int_array[] = {__VA_ARGS__, 0}, *__int_ptr = __int_array, __var = *__int_ptr; __int_ptr - (ARRAY_LEN(__int_array) - 1) < __int_array; \
+         __var = *++__int_ptr)
 
-#define foreach_pointer(__var, ...)                                           \
-  for (void *__ptr_array[] = { __VA_ARGS__, 0 }, **__ptr_ptr = __ptr_array,   \
-	    *__var = *__ptr_ptr;                                              \
-       __ptr_ptr - (ARRAY_LEN (__ptr_array) - 1) < __ptr_array;               \
-       __var = *++__ptr_ptr)
+#define foreach_pointer(__var, ...)                                                              \
+    for (void *__ptr_array[] = {__VA_ARGS__, 0}, **__ptr_ptr = __ptr_array, *__var = *__ptr_ptr; \
+         __ptr_ptr - (ARRAY_LEN(__ptr_array) - 1) < __ptr_array;                                 \
+         __var = *++__ptr_ptr)
 
 #endif /* included_clib_types_h */
 

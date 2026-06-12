@@ -27,139 +27,125 @@
 
 #include <vpp/api/types.h>
 
-
 #define REPLY_MSG_ID_BASE hsm->msg_id_base
 #include <vlibapi/api_helper_macros.h>
 
-__clib_export void
-hss_register_url_handler (hss_url_handler_fn fp, const char *url,
-			  http_req_method_t request_type)
+__clib_export void hss_register_url_handler(hss_url_handler_fn fp, const char *url, http_req_method_t request_type)
 {
-  hss_main_t *hsm = &hss_main;
-  uword *p, *url_table;
+    hss_main_t *hsm = &hss_main;
+    uword      *p, *url_table;
 
-  url_table = (request_type == HTTP_REQ_GET) ? hsm->get_url_handlers :
-					       hsm->post_url_handlers;
+    url_table = (request_type == HTTP_REQ_GET) ? hsm->get_url_handlers : hsm->post_url_handlers;
 
-  p = hash_get_mem (url_table, url);
+    p = hash_get_mem(url_table, url);
 
-  if (p)
-    {
-      clib_warning ("WARNING: attempt to replace handler for %s '%s' ignored",
-		    (request_type == HTTP_REQ_GET) ? "GET" : "POST", url);
-      return;
+    if (p) {
+        clib_warning("WARNING: attempt to replace handler for %s '%s' ignored", (request_type == HTTP_REQ_GET) ? "GET" : "POST", url);
+        return;
     }
 
-  hash_set_mem (url_table, url, (uword) fp);
+    hash_set_mem(url_table, url, (uword) fp);
 
-  /*
-   * Need to update the hash table pointer in http_static_server_main
-   * in case we just expanded it...
-   */
-  if (request_type == HTTP_REQ_GET)
-    hsm->get_url_handlers = url_table;
-  else
-    hsm->post_url_handlers = url_table;
+    /*
+     * Need to update the hash table pointer in http_static_server_main
+     * in case we just expanded it...
+     */
+    if (request_type == HTTP_REQ_GET)
+        hsm->get_url_handlers = url_table;
+    else
+        hsm->post_url_handlers = url_table;
 }
 
 /** \brief API helper function for vl_api_http_static_enable_t messages
  */
-static int
-hss_enable_api (u32 fifo_size, u32 cache_limit, u32 prealloc_fifos,
-		u32 private_segment_size, u8 *www_root, u8 *uri, u32 max_age)
+static int hss_enable_api(u32 fifo_size, u32 cache_limit, u32 prealloc_fifos, u32 private_segment_size, u8 *www_root, u8 *uri, u32 max_age)
 {
-  hss_main_t *hsm = &hss_main;
-  int rv;
+    hss_main_t *hsm = &hss_main;
+    int         rv;
 
-  hsm->fifo_size = fifo_size;
-  hsm->cache_size = cache_limit;
-  hsm->prealloc_fifos = prealloc_fifos;
-  hsm->private_segment_size = private_segment_size;
-  hsm->www_root = format (0, "%s%c", www_root, 0);
-  hsm->uri = format (0, "%s%c", uri, 0);
-  hsm->max_age = max_age;
+    hsm->fifo_size            = fifo_size;
+    hsm->cache_size           = cache_limit;
+    hsm->prealloc_fifos       = prealloc_fifos;
+    hsm->private_segment_size = private_segment_size;
+    hsm->www_root             = format(0, "%s%c", www_root, 0);
+    hsm->uri                  = format(0, "%s%c", uri, 0);
+    hsm->max_age              = max_age;
 
-  if (vec_len (hsm->www_root) < 2)
-    return VNET_API_ERROR_INVALID_VALUE;
+    if (vec_len(hsm->www_root) < 2) return VNET_API_ERROR_INVALID_VALUE;
 
-  if (hsm->app_index != ~0)
-    return VNET_API_ERROR_APP_ALREADY_ATTACHED;
+    if (hsm->app_index != ~0) return VNET_API_ERROR_APP_ALREADY_ATTACHED;
 
-  session_enable_disable_args_t args = { .is_en = 1,
-					 .rt_engine_type =
-					   RT_BACKEND_ENGINE_RULE_TABLE };
-  vnet_session_enable_disable (hsm->vlib_main, &args);
+    session_enable_disable_args_t args = {.is_en = 1, .rt_engine_type = RT_BACKEND_ENGINE_RULE_TABLE};
+    vnet_session_enable_disable(hsm->vlib_main, &args);
 
-  rv = hss_create (hsm->vlib_main);
-  switch (rv)
-    {
-    case 0:
-      break;
-    default:
-      vec_free (hsm->www_root);
-      vec_free (hsm->uri);
-      return VNET_API_ERROR_INIT_FAILED;
+    rv = hss_create(hsm->vlib_main);
+    switch (rv) {
+        case 0:
+            break;
+        default:
+            vec_free(hsm->www_root);
+            vec_free(hsm->uri);
+            return VNET_API_ERROR_INIT_FAILED;
     }
-  return 0;
+    return 0;
 }
 
 /* API message handler */
-static void vl_api_http_static_enable_t_handler
-  (vl_api_http_static_enable_t * mp)
+static void vl_api_http_static_enable_t_handler(vl_api_http_static_enable_t *mp)
 {
-  vl_api_http_static_enable_reply_t *rmp;
-  hss_main_t *hsm = &hss_main;
-  int rv;
+    vl_api_http_static_enable_reply_t *rmp;
+    hss_main_t                        *hsm = &hss_main;
+    int                                rv;
 
-  mp->uri[ARRAY_LEN (mp->uri) - 1] = 0;
-  mp->www_root[ARRAY_LEN (mp->www_root) - 1] = 0;
+    mp->uri[ARRAY_LEN(mp->uri) - 1]           = 0;
+    mp->www_root[ARRAY_LEN(mp->www_root) - 1] = 0;
 
-  rv = hss_enable_api (ntohl (mp->fifo_size), ntohl (mp->cache_size_limit),
-		       ntohl (mp->prealloc_fifos),
-		       ntohl (mp->private_segment_size), mp->www_root, mp->uri,
-		       HSS_DEFAULT_MAX_AGE);
+    rv = hss_enable_api(ntohl(mp->fifo_size),
+                        ntohl(mp->cache_size_limit),
+                        ntohl(mp->prealloc_fifos),
+                        ntohl(mp->private_segment_size),
+                        mp->www_root,
+                        mp->uri,
+                        HSS_DEFAULT_MAX_AGE);
 
-  REPLY_MACRO (VL_API_HTTP_STATIC_ENABLE_REPLY);
+    REPLY_MACRO(VL_API_HTTP_STATIC_ENABLE_REPLY);
 }
 
 /* API message handler */
-static void
-vl_api_http_static_enable_v2_t_handler (vl_api_http_static_enable_v2_t *mp)
+static void vl_api_http_static_enable_v2_t_handler(vl_api_http_static_enable_v2_t *mp)
 {
-  vl_api_http_static_enable_v2_reply_t *rmp;
-  hss_main_t *hsm = &hss_main;
-  int rv;
+    vl_api_http_static_enable_v2_reply_t *rmp;
+    hss_main_t                           *hsm = &hss_main;
+    int                                   rv;
 
-  mp->uri[ARRAY_LEN (mp->uri) - 1] = 0;
-  mp->www_root[ARRAY_LEN (mp->www_root) - 1] = 0;
+    mp->uri[ARRAY_LEN(mp->uri) - 1]           = 0;
+    mp->www_root[ARRAY_LEN(mp->www_root) - 1] = 0;
 
-  rv = hss_enable_api (ntohl (mp->fifo_size), ntohl (mp->cache_size_limit),
-		       ntohl (mp->prealloc_fifos),
-		       ntohl (mp->private_segment_size), mp->www_root, mp->uri,
-		       ntohl (mp->max_age));
+    rv = hss_enable_api(ntohl(mp->fifo_size),
+                        ntohl(mp->cache_size_limit),
+                        ntohl(mp->prealloc_fifos),
+                        ntohl(mp->private_segment_size),
+                        mp->www_root,
+                        mp->uri,
+                        ntohl(mp->max_age));
 
-  REPLY_MACRO (VL_API_HTTP_STATIC_ENABLE_V2_REPLY);
+    REPLY_MACRO(VL_API_HTTP_STATIC_ENABLE_V2_REPLY);
 }
 
 #include <http_static/http_static.api.c>
-static clib_error_t *
-hss_api_init (vlib_main_t *vm)
+static clib_error_t *hss_api_init(vlib_main_t *vm)
 {
-  hss_main_t *hsm = &hss_main;
+    hss_main_t *hsm = &hss_main;
 
-  /* Ask for a correctly-sized block of API message decode slots */
-  hsm->msg_id_base = setup_message_id_table ();
+    /* Ask for a correctly-sized block of API message decode slots */
+    hsm->msg_id_base = setup_message_id_table();
 
-  return 0;
+    return 0;
 }
 
-VLIB_INIT_FUNCTION (hss_api_init);
+VLIB_INIT_FUNCTION(hss_api_init);
 
-VLIB_PLUGIN_REGISTER () =
-{
-  .version = VPP_BUILD_VER,
-  .description = "HTTP Static Server"
-};
+VLIB_PLUGIN_REGISTER() = {.version = VPP_BUILD_VER, .description = "HTTP Static Server"};
 
 /*
  * fd.io coding-style-patch-verification: ON

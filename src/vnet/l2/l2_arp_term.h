@@ -18,32 +18,28 @@
 #include <vnet/ip/ip46_address.h>
 #include <vnet/ethernet/arp_packet.h>
 
-typedef struct l2_arp_term_publish_ctx_t_
-{
-  u32 sw_if_index;
-  ip46_type_t type;
-  ip46_address_t ip;
-  mac_address_t mac;
+typedef struct l2_arp_term_publish_ctx_t_ {
+    u32            sw_if_index;
+    ip46_type_t    type;
+    ip46_address_t ip;
+    mac_address_t  mac;
 } l2_arp_term_publish_event_t;
 
-enum
-{
-  L2_ARP_TERM_EVENT_PUBLISH,
+enum {
+    L2_ARP_TERM_EVENT_PUBLISH,
 };
 
-typedef struct l2_arp_term_main_t_
-{
-  bool publish;
+typedef struct l2_arp_term_main_t_ {
+    bool publish;
 
-  l2_arp_term_publish_event_t *publish_events;
+    l2_arp_term_publish_event_t *publish_events;
 
 } l2_arp_term_main_t;
 
-extern l2_arp_term_main_t l2_arp_term_main;
+extern l2_arp_term_main_t       l2_arp_term_main;
 extern vlib_node_registration_t l2_arp_term_process_node;
 
-extern void l2_arp_term_set_publisher_node (bool on);
-
+extern void l2_arp_term_set_publisher_node(bool on);
 
 /*
  * fd.io coding-style-patch-verification: ON

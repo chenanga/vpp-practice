@@ -24,8 +24,8 @@
  * These enum decode/encodes use 'u32' as the type for the enum because
  * one cannot forward declare an enum
  */
-extern u64 virtio_features_decode (u32 first, u32 last);
-extern void virtio_features_encode (u64 features, u32 * first, u32 * last);
+extern u64  virtio_features_decode(u32 first, u32 last);
+extern void virtio_features_encode(u64 features, u32* first, u32* last);
 
 #endif /* __VIRTIO_TYPES_API_H__ */
 

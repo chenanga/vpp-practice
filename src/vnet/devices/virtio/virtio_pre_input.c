@@ -22,65 +22,47 @@
 #include <vnet/devices/virtio/virtio_inline.h>
 
 static_always_inline uword
-virtio_pre_input_inline (vlib_main_t *vm, vnet_virtio_vring_t *txq_vring,
-			 vnet_hw_if_tx_queue_t *txq, u8 packet_coalesce,
-			 u8 packet_buffering)
+virtio_pre_input_inline(vlib_main_t *vm, vnet_virtio_vring_t *txq_vring, vnet_hw_if_tx_queue_t *txq, u8 packet_coalesce, u8 packet_buffering)
 {
-  if (txq->shared_queue)
-    {
-      if (clib_spinlock_trylock (&txq_vring->lockp))
-	{
-	  if (virtio_txq_is_scheduled (txq_vring))
-	    goto unlock;
-	  if (packet_coalesce)
-	    vnet_gro_flow_table_schedule_node_on_dispatcher (
-	      vm, txq, txq_vring->flow_table);
-	  else if (packet_buffering)
-	    virtio_vring_buffering_schedule_node_on_dispatcher (
-	      vm, txq, txq_vring->buffering);
-	  virtio_txq_set_scheduled (txq_vring);
-	unlock:
-	  clib_spinlock_unlock (&txq_vring->lockp);
-	}
+    if (txq->shared_queue) {
+        if (clib_spinlock_trylock(&txq_vring->lockp)) {
+            if (virtio_txq_is_scheduled(txq_vring)) goto unlock;
+            if (packet_coalesce)
+                vnet_gro_flow_table_schedule_node_on_dispatcher(vm, txq, txq_vring->flow_table);
+            else if (packet_buffering)
+                virtio_vring_buffering_schedule_node_on_dispatcher(vm, txq, txq_vring->buffering);
+            virtio_txq_set_scheduled(txq_vring);
+        unlock:
+            clib_spinlock_unlock(&txq_vring->lockp);
+        }
     }
-  else
-    {
-      if (packet_coalesce)
-	vnet_gro_flow_table_schedule_node_on_dispatcher (
-	  vm, txq, txq_vring->flow_table);
-      else if (packet_buffering)
-	virtio_vring_buffering_schedule_node_on_dispatcher (
-	  vm, txq, txq_vring->buffering);
+    else {
+        if (packet_coalesce)
+            vnet_gro_flow_table_schedule_node_on_dispatcher(vm, txq, txq_vring->flow_table);
+        else if (packet_buffering)
+            virtio_vring_buffering_schedule_node_on_dispatcher(vm, txq, txq_vring->buffering);
     }
-  return 0;
+    return 0;
 }
 
-static uword
-virtio_pre_input (vlib_main_t *vm, vlib_node_runtime_t *node,
-		  vlib_frame_t *frame)
+static uword virtio_pre_input(vlib_main_t *vm, vlib_node_runtime_t *node, vlib_frame_t *frame)
 {
-  virtio_main_t *vim = &virtio_main;
-  vnet_main_t *vnm = vnet_get_main ();
-  virtio_if_t *vif;
+    virtio_main_t *vim = &virtio_main;
+    vnet_main_t   *vnm = vnet_get_main();
+    virtio_if_t   *vif;
 
-  pool_foreach (vif, vim->interfaces)
-    {
-      if (vif->packet_coalesce || vif->packet_buffering)
-	{
-	  vnet_virtio_vring_t *txq_vring;
-	  vec_foreach (txq_vring, vif->txq_vrings)
-	    {
-	      vnet_hw_if_tx_queue_t *txq =
-		vnet_hw_if_get_tx_queue (vnm, txq_vring->queue_index);
-	      if (clib_bitmap_get (txq->threads, vm->thread_index) == 1)
-		virtio_pre_input_inline (vm, txq_vring, txq,
-					 vif->packet_coalesce,
-					 vif->packet_buffering);
-	    }
-	}
+    pool_foreach (vif, vim->interfaces) {
+        if (vif->packet_coalesce || vif->packet_buffering) {
+            vnet_virtio_vring_t *txq_vring;
+            vec_foreach (txq_vring, vif->txq_vrings) {
+                vnet_hw_if_tx_queue_t *txq = vnet_hw_if_get_tx_queue(vnm, txq_vring->queue_index);
+                if (clib_bitmap_get(txq->threads, vm->thread_index) == 1)
+                    virtio_pre_input_inline(vm, txq_vring, txq, vif->packet_coalesce, vif->packet_buffering);
+            }
+        }
     }
 
-  return 0;
+    return 0;
 }
 
 /**
@@ -107,47 +89,36 @@ virtio_pre_input (vlib_main_t *vm, vlib_node_runtime_t *node,
  * through (dedicated) pre-input node running on each VPP thread when
  * atleast 1 virtio interface is enabled with coalescing or buffering.
  */
-VLIB_REGISTER_NODE (virtio_pre_input_node) = {
-  .function = virtio_pre_input,
-  .type = VLIB_NODE_TYPE_PRE_INPUT,
-  .name = "virtio-pre-input",
-  .state = VLIB_NODE_STATE_DISABLED,
+VLIB_REGISTER_NODE(virtio_pre_input_node) = {
+    .function = virtio_pre_input,
+    .type     = VLIB_NODE_TYPE_PRE_INPUT,
+    .name     = "virtio-pre-input",
+    .state    = VLIB_NODE_STATE_DISABLED,
 };
 
-void
-virtio_pre_input_node_enable (vlib_main_t *vm, virtio_if_t *vif)
+void virtio_pre_input_node_enable(vlib_main_t *vm, virtio_if_t *vif)
 {
-  virtio_main_t *vim = &virtio_main;
-  if (vif->packet_coalesce || vif->packet_buffering)
-    {
-      vim->gro_or_buffering_if_count++;
-      if (vim->gro_or_buffering_if_count == 1)
-	{
-	  foreach_vlib_main ()
-	    {
-	      vlib_node_set_state (this_vlib_main, virtio_pre_input_node.index,
-				   VLIB_NODE_STATE_POLLING);
-	    }
-	}
+    virtio_main_t *vim = &virtio_main;
+    if (vif->packet_coalesce || vif->packet_buffering) {
+        vim->gro_or_buffering_if_count++;
+        if (vim->gro_or_buffering_if_count == 1) {
+            foreach_vlib_main () {
+                vlib_node_set_state(this_vlib_main, virtio_pre_input_node.index, VLIB_NODE_STATE_POLLING);
+            }
+        }
     }
 }
 
-void
-virtio_pre_input_node_disable (vlib_main_t *vm, virtio_if_t *vif)
+void virtio_pre_input_node_disable(vlib_main_t *vm, virtio_if_t *vif)
 {
-  virtio_main_t *vim = &virtio_main;
-  if (vif->packet_coalesce || vif->packet_buffering)
-    {
-      if (vim->gro_or_buffering_if_count > 0)
-	vim->gro_or_buffering_if_count--;
-      if (vim->gro_or_buffering_if_count == 0)
-	{
-	  foreach_vlib_main ()
-	    {
-	      vlib_node_set_state (this_vlib_main, virtio_pre_input_node.index,
-				   VLIB_NODE_STATE_DISABLED);
-	    }
-	}
+    virtio_main_t *vim = &virtio_main;
+    if (vif->packet_coalesce || vif->packet_buffering) {
+        if (vim->gro_or_buffering_if_count > 0) vim->gro_or_buffering_if_count--;
+        if (vim->gro_or_buffering_if_count == 0) {
+            foreach_vlib_main () {
+                vlib_node_set_state(this_vlib_main, virtio_pre_input_node.index, VLIB_NODE_STATE_DISABLED);
+            }
+        }
     }
 }
 

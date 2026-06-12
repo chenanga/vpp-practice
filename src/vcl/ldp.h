@@ -34,10 +34,10 @@
 #define LDP_ENV_TLS_KEY   "LDP_TLS_KEY_FILE"
 #define LDP_ENV_TLS_TRANS "LDP_TRANSPARENT_TLS"
 
-#define LDP_SID_BIT_MIN   5
-#define LDP_SID_BIT_MAX   30
+#define LDP_SID_BIT_MIN 5
+#define LDP_SID_BIT_MAX 30
 
-#define LDP_APP_NAME_MAX  256
+#define LDP_APP_NAME_MAX 256
 
 #endif /* included_ldp_h */
 

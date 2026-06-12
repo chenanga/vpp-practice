@@ -44,73 +44,60 @@
 #include <vnet/ethernet/ethernet.h>
 #include <vnet/gso/gro_func.h>
 
-uword
-pg_output (vlib_main_t * vm, vlib_node_runtime_t * node, vlib_frame_t * frame)
+uword pg_output(vlib_main_t *vm, vlib_node_runtime_t *node, vlib_frame_t *frame)
 {
-  pg_main_t *pg = &pg_main;
-  u32 *buffers = vlib_frame_vector_args (frame);
-  uword n_buffers = frame->n_vectors;
-  uword n_left = n_buffers;
-  u32 to[GRO_TO_VECTOR_SIZE (n_buffers)];
-  uword n_to = 0;
-  vnet_interface_output_runtime_t *rd = (void *) node->runtime_data;
-  pg_interface_t *pif = pool_elt_at_index (pg->interfaces, rd->dev_instance);
+    pg_main_t                       *pg        = &pg_main;
+    u32                             *buffers   = vlib_frame_vector_args(frame);
+    uword                            n_buffers = frame->n_vectors;
+    uword                            n_left    = n_buffers;
+    u32                              to[GRO_TO_VECTOR_SIZE(n_buffers)];
+    uword                            n_to = 0;
+    vnet_interface_output_runtime_t *rd   = (void *) node->runtime_data;
+    pg_interface_t                  *pif  = pool_elt_at_index(pg->interfaces, rd->dev_instance);
 
-  if (PREDICT_FALSE (pif->lockp != 0))
-    while (clib_atomic_test_and_set (pif->lockp))
-      ;
+    if (PREDICT_FALSE(pif->lockp != 0))
+        while (clib_atomic_test_and_set(pif->lockp))
+            ;
 
-  if (PREDICT_FALSE (pif->coalesce_enabled))
-    {
-      n_to = vnet_gro_inline (vm, pif->flow_table, buffers, n_left, to);
-      buffers = to;
-      n_left = n_to;
+    if (PREDICT_FALSE(pif->coalesce_enabled)) {
+        n_to    = vnet_gro_inline(vm, pif->flow_table, buffers, n_left, to);
+        buffers = to;
+        n_left  = n_to;
     }
 
-  while (n_left > 0)
-    {
-      n_left--;
-      u32 bi0 = buffers[0];
-      vlib_buffer_t *b = vlib_get_buffer (vm, bi0);
-      buffers++;
+    while (n_left > 0) {
+        n_left--;
+        u32            bi0 = buffers[0];
+        vlib_buffer_t *b   = vlib_get_buffer(vm, bi0);
+        buffers++;
 
-      if (b->flags & VLIB_BUFFER_IS_TRACED)
-	{
-	  pg_output_trace_t *t = vlib_add_trace (vm, node, b, sizeof (*t));
-	  t->buffer_index = bi0;
-	  clib_memcpy_fast (&t->buffer, b,
-			    sizeof (b[0]) - sizeof (b->pre_data));
-	  clib_memcpy_fast (t->buffer.pre_data, b->data + b->current_data,
-			    sizeof (t->buffer.pre_data));
-	}
+        if (b->flags & VLIB_BUFFER_IS_TRACED) {
+            pg_output_trace_t *t = vlib_add_trace(vm, node, b, sizeof(*t));
+            t->buffer_index      = bi0;
+            clib_memcpy_fast(&t->buffer, b, sizeof(b[0]) - sizeof(b->pre_data));
+            clib_memcpy_fast(t->buffer.pre_data, b->data + b->current_data, sizeof(t->buffer.pre_data));
+        }
 
-      if (pif->pcap_file_name != 0)
-	pcap_add_buffer (&pif->pcap_main, vm, bi0, ETHERNET_MAX_PACKET_BYTES);
+        if (pif->pcap_file_name != 0) pcap_add_buffer(&pif->pcap_main, vm, bi0, ETHERNET_MAX_PACKET_BYTES);
     }
-  if (pif->pcap_file_name != 0)
-    {
-      pcap_packet_type_t pm_pt = pif->pcap_main.packet_type;
-      pif->pcap_main.packet_type =
-	pg_intf_mode_to_pcap_packet_type (pif->mode);
-      pcap_write (&pif->pcap_main);
-      pif->pcap_main.packet_type = pm_pt;
+    if (pif->pcap_file_name != 0) {
+        pcap_packet_type_t pm_pt   = pif->pcap_main.packet_type;
+        pif->pcap_main.packet_type = pg_intf_mode_to_pcap_packet_type(pif->mode);
+        pcap_write(&pif->pcap_main);
+        pif->pcap_main.packet_type = pm_pt;
     }
-  if ((pif->pcap_main.flags & PCAP_MAIN_INIT_DONE)
-      && pif->pcap_main.n_packets_captured >=
-      pif->pcap_main.n_packets_to_capture)
-    pcap_close (&pif->pcap_main);
+    if ((pif->pcap_main.flags & PCAP_MAIN_INIT_DONE) && pif->pcap_main.n_packets_captured >= pif->pcap_main.n_packets_to_capture)
+        pcap_close(&pif->pcap_main);
 
-  if (PREDICT_FALSE (pif->coalesce_enabled))
-    {
-      n_buffers = n_to;
-      vlib_buffer_free (vm, to, n_to);
+    if (PREDICT_FALSE(pif->coalesce_enabled)) {
+        n_buffers = n_to;
+        vlib_buffer_free(vm, to, n_to);
     }
-  else
-    vlib_buffer_free (vm, vlib_frame_vector_args (frame), n_buffers);
-  if (PREDICT_FALSE (pif->lockp != 0))
-    clib_atomic_release (pif->lockp);
+    else
+        vlib_buffer_free(vm, vlib_frame_vector_args(frame), n_buffers);
+    if (PREDICT_FALSE(pif->lockp != 0)) clib_atomic_release(pif->lockp);
 
-  return n_buffers;
+    return n_buffers;
 }
 
 /*

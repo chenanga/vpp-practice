@@ -16,23 +16,20 @@
 #include <vlib/unix/unix.h>
 #include <math.h>
 
-int
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  return vlib_unix_main (argc, argv);
+    return vlib_unix_main(argc, argv);
 }
 
-static clib_error_t *
-main_stub_init (vlib_main_t * vm)
+static clib_error_t *main_stub_init(vlib_main_t *vm)
 {
-  clib_error_t *error = 0;
+    clib_error_t *error = 0;
 
-  return error;
+    return error;
 }
 
-VLIB_INIT_FUNCTION (main_stub_init) =
-{
-  .runs_after = VLIB_INITS("unix_physmem_init", "unix_cli_init"),
+VLIB_INIT_FUNCTION(main_stub_init) = {
+    .runs_after = VLIB_INITS("unix_physmem_init", "unix_cli_init"),
 };
 
 #if 0

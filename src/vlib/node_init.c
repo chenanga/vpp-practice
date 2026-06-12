@@ -41,75 +41,57 @@
 #include <fcntl.h>
 #include <vlib/vlib.h>
 
-static clib_error_t *
-vlib_node_config (vlib_main_t *vm, unformat_input_t *input)
+static clib_error_t *vlib_node_config(vlib_main_t *vm, unformat_input_t *input)
 {
-  clib_error_t *error = 0;
-  unformat_input_t sub_input;
-  u32 *march_variant_by_node = 0;
-  clib_march_variant_type_t march_variant;
-  u32 node_index;
-  int i;
+    clib_error_t             *error = 0;
+    unformat_input_t          sub_input;
+    u32                      *march_variant_by_node = 0;
+    clib_march_variant_type_t march_variant;
+    u32                       node_index;
+    int                       i;
 
-  /* specify prioritization defaults for all graph nodes */
-  while (unformat_check_input (input) != UNFORMAT_END_OF_INPUT)
-    {
-      if (unformat (input, "default %U", unformat_vlib_cli_sub_input,
-		    &sub_input))
-	{
-	  while (unformat_check_input (&sub_input) != UNFORMAT_END_OF_INPUT)
-	    {
-	      if (!unformat (&sub_input, "variant %U",
-			     unformat_vlib_node_variant, &march_variant))
-		return clib_error_return (0,
-					  "please specify a valid node variant");
+    /* specify prioritization defaults for all graph nodes */
+    while (unformat_check_input(input) != UNFORMAT_END_OF_INPUT) {
+        if (unformat(input, "default %U", unformat_vlib_cli_sub_input, &sub_input)) {
+            while (unformat_check_input(&sub_input) != UNFORMAT_END_OF_INPUT) {
+                if (!unformat(&sub_input, "variant %U", unformat_vlib_node_variant, &march_variant))
+                    return clib_error_return(0, "please specify a valid node variant");
 
-	      vec_validate_init_empty (march_variant_by_node,
-				       vec_len (vm->node_main.nodes) - 1, ~0);
-	      vec_foreach_index (i, march_variant_by_node)
-		march_variant_by_node[i] = march_variant;
-	      vm->node_main.node_fn_default_march_variant = march_variant;
-	      unformat_free (&sub_input);
-	    }
-	}
-      else /* specify prioritization for an individual graph node */
-	if (unformat (input, "%U", unformat_vlib_node, vm, &node_index))
-	{
-	  if (unformat (input, "%U", unformat_vlib_cli_sub_input, &sub_input))
-	    {
-	      while (unformat_check_input (&sub_input) !=
-		     UNFORMAT_END_OF_INPUT)
-		{
-		  if (!unformat (&sub_input, "variant %U",
-				 unformat_vlib_node_variant, &march_variant))
-		    return clib_error_return (0,
-					      "please specify a valid node variant");
-		  vec_validate_init_empty (march_variant_by_node, node_index,
-					   ~0);
-		  march_variant_by_node[node_index] = march_variant;
-		  unformat_free (&sub_input);
-		}
-	    }
-	}
-      else
-	{
-	  break;
-	}
+                vec_validate_init_empty(march_variant_by_node, vec_len(vm->node_main.nodes) - 1, ~0);
+                vec_foreach_index (i, march_variant_by_node)
+                    march_variant_by_node[i] = march_variant;
+                vm->node_main.node_fn_default_march_variant = march_variant;
+                unformat_free(&sub_input);
+            }
+        }
+        else /* specify prioritization for an individual graph node */
+            if (unformat(input, "%U", unformat_vlib_node, vm, &node_index)) {
+                if (unformat(input, "%U", unformat_vlib_cli_sub_input, &sub_input)) {
+                    while (unformat_check_input(&sub_input) != UNFORMAT_END_OF_INPUT) {
+                        if (!unformat(&sub_input, "variant %U", unformat_vlib_node_variant, &march_variant))
+                            return clib_error_return(0, "please specify a valid node variant");
+                        vec_validate_init_empty(march_variant_by_node, node_index, ~0);
+                        march_variant_by_node[node_index] = march_variant;
+                        unformat_free(&sub_input);
+                    }
+                }
+            }
+            else {
+                break;
+            }
     }
 
-  if (march_variant_by_node)
-    {
-      vec_foreach_index (i, march_variant_by_node)
-	if (march_variant_by_node[i] != ~0)
-	  vlib_node_set_march_variant (vm, i, march_variant_by_node[i]);
-      vec_free (march_variant_by_node);
+    if (march_variant_by_node) {
+        vec_foreach_index (i, march_variant_by_node)
+            if (march_variant_by_node[i] != ~0) vlib_node_set_march_variant(vm, i, march_variant_by_node[i]);
+        vec_free(march_variant_by_node);
     }
-  unformat_free (input);
+    unformat_free(input);
 
-  return error;
+    return error;
 }
 
-VLIB_CONFIG_FUNCTION (vlib_node_config, "node");
+VLIB_CONFIG_FUNCTION(vlib_node_config, "node");
 
 /*
  * fd.io coding-style-patch-verification: ON

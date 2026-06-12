@@ -21,23 +21,20 @@
 #include <stdbool.h> /* for bool in .api */
 #include <vnet/vnet.h>
 
-extern int mssc_enable_disable (u32 sw_if_index, u8 dir4, u8 dir6, u16 mss4,
-				u16 mss6);
-extern int mssc_get_mss (u32 sw_if_index, u8 *dir4, u8 *dir6, u16 *mss4,
-			 u16 *mss6);
+extern int mssc_enable_disable(u32 sw_if_index, u8 dir4, u8 dir6, u16 mss4, u16 mss6);
+extern int mssc_get_mss(u32 sw_if_index, u8 *dir4, u8 *dir6, u16 *mss4, u16 *mss6);
 
-typedef struct
-{
-  /* Maximum segment size per interface for IPv4/IPv6 */
-  u16 *max_mss4;
-  u16 *max_mss6;
+typedef struct {
+    /* Maximum segment size per interface for IPv4/IPv6 */
+    u16 *max_mss4;
+    u16 *max_mss6;
 
-  /* Direction the feature is enabled for IPv4/IPv6 (rx, tx, both) */
-  u8 *dir_enabled4;
-  u8 *dir_enabled6;
+    /* Direction the feature is enabled for IPv4/IPv6 (rx, tx, both) */
+    u8 *dir_enabled4;
+    u8 *dir_enabled6;
 
-  /* API message ID base */
-  u16 msg_id_base;
+    /* API message ID base */
+    u16 msg_id_base;
 } mssc_main_t;
 
 extern mssc_main_t mssc_main;

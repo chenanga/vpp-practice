@@ -12,9 +12,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-const char *html_header_template = "<html><head><title>%v</title></head>"
-				   "<link rel=\"icon\" href=\"data:,\">"
-				   "<body><pre>";
+const char *html_header_template =
+    "<html><head><title>%v</title></head>"
+    "<link rel=\"icon\" href=\"data:,\">"
+    "<body><pre>";
 
 const char *html_footer = "</pre></body></html>\r\n";
 

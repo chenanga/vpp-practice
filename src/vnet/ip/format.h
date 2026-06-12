@@ -42,17 +42,16 @@
 
 /* IP4 or IP6. */
 
-format_function_t format_ip_protocol;
+format_function_t   format_ip_protocol;
 unformat_function_t unformat_ip_protocol;
 
-format_function_t format_tcp_udp_port;
+format_function_t   format_tcp_udp_port;
 unformat_function_t unformat_tcp_udp_port;
 
-typedef enum format_ip_adjacency_flags_t_
-{
-  FORMAT_IP_ADJACENCY_NONE,
-  FORMAT_IP_ADJACENCY_BRIEF = FORMAT_IP_ADJACENCY_NONE,
-  FORMAT_IP_ADJACENCY_DETAIL = (1 << 0),
+typedef enum format_ip_adjacency_flags_t_ {
+    FORMAT_IP_ADJACENCY_NONE,
+    FORMAT_IP_ADJACENCY_BRIEF  = FORMAT_IP_ADJACENCY_NONE,
+    FORMAT_IP_ADJACENCY_DETAIL = (1 << 0),
 } format_ip_adjacency_flags_t;
 
 format_function_t format_ip_adjacency;
@@ -88,12 +87,12 @@ unformat_function_t unformat_pg_ip4_header;
 /* IP6 */
 unformat_function_t unformat_ip6_address;
 unformat_function_t unformat_ip6_address_and_mask;
-format_function_t format_ip6_address;
-format_function_t format_ip6_address_and_length;
-format_function_t format_ip6_address_and_mask;
+format_function_t   format_ip6_address;
+format_function_t   format_ip6_address_and_length;
+format_function_t   format_ip6_address_and_mask;
 unformat_function_t unformat_ip6_header;
-format_function_t format_ip6_header;
-format_function_t format_ip6_frag_hdr;
+format_function_t   format_ip6_header;
+format_function_t   format_ip6_frag_hdr;
 unformat_function_t unformat_pg_ip6_header;
 
 /* Format a TCP/UDP headers. */

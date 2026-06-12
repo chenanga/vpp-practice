@@ -527,11 +527,16 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 /* --- begin vpp customizations --- */
 
 #if CLIB_DEBUG > 0
-#define FOOTERS 1  /* extra debugging */
+#define FOOTERS            1 /* extra debugging */
 #define DLM_MAGIC_CONSTANT 0xdeaddabe
 #endif
 #define USE_LOCKS 1
-#define DLM_ABORT {extern void os_panic(void); os_panic(); abort();}
+#define DLM_ABORT                   \
+    {                               \
+        extern void os_panic(void); \
+        os_panic();                 \
+        abort();                    \
+    }
 #define ONLY_MSPACES 1
 
 /* --- end vpp customizations --- */
@@ -548,17 +553,17 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #ifndef WIN32
 #ifdef _WIN32
 #define WIN32 1
-#endif  /* _WIN32 */
+#endif /* _WIN32 */
 #ifdef _WIN32_WCE
 #define LACKS_FCNTL_H
 #define WIN32 1
 #endif /* _WIN32_WCE */
-#endif  /* WIN32 */
+#endif /* WIN32 */
 #ifdef WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <tchar.h>
-#define HAVE_MMAP 1
+#define HAVE_MMAP     1
 #define HAVE_MORECORE 0
 #define LACKS_UNISTD_H
 #define LACKS_SYS_PARAM_H
@@ -578,37 +583,34 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #define MMAP_CLEARS 1
 #endif /* _WIN32_WCE */
 #endif /*MMAP_CLEARS */
-#endif  /* WIN32 */
+#endif /* WIN32 */
 
 #if defined(DARWIN) || defined(_DARWIN)
 /* Mac OSX docs advise not to use sbrk; it seems better to use mmap */
 #ifndef HAVE_MORECORE
 #define HAVE_MORECORE 0
-#define HAVE_MMAP 1
+#define HAVE_MMAP     1
 /* OSX allocators provide 16 byte alignment */
 #ifndef MALLOC_ALIGNMENT
-#define MALLOC_ALIGNMENT ((size_t)16U)
+#define MALLOC_ALIGNMENT ((size_t) 16U)
 #endif
-#endif  /* HAVE_MORECORE */
-#endif  /* DARWIN */
+#endif /* HAVE_MORECORE */
+#endif /* DARWIN */
 
 #ifndef LACKS_SYS_TYPES_H
-#include <sys/types.h>  /* For size_t */
-#endif  /* LACKS_SYS_TYPES_H */
+#include <sys/types.h> /* For size_t */
+#endif                 /* LACKS_SYS_TYPES_H */
 
 /* The maximum possible size_t value has all bits set */
-#define MAX_SIZE_T           (~(size_t)0)
+#define MAX_SIZE_T (~(size_t) 0)
 
 #ifndef USE_LOCKS /* ensure true if spin or recursive locks set */
-#define USE_LOCKS  ((defined(USE_SPIN_LOCKS) && USE_SPIN_LOCKS != 0) || \
-                    (defined(USE_RECURSIVE_LOCKS) && USE_RECURSIVE_LOCKS != 0))
+#define USE_LOCKS ((defined(USE_SPIN_LOCKS) && USE_SPIN_LOCKS != 0) || (defined(USE_RECURSIVE_LOCKS) && USE_RECURSIVE_LOCKS != 0))
 #endif /* USE_LOCKS */
 
 #if USE_LOCKS /* Spin locks for gcc >= 4.1, older gcc on x86, MSC >= 1310 */
-#if ((defined(__GNUC__) &&                                              \
-      ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) ||      \
-       defined(__i386__) || defined(__x86_64__))) ||                    \
-     (defined(_MSC_VER) && _MSC_VER>=1310))
+#if ((defined(__GNUC__) && ((__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 1)) || defined(__i386__) || defined(__x86_64__))) \
+     || (defined(_MSC_VER) && _MSC_VER >= 1310))
 #ifndef USE_SPIN_LOCKS
 #define USE_SPIN_LOCKS 1
 #endif /* USE_SPIN_LOCKS */
@@ -621,82 +623,82 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 
 #ifndef ONLY_MSPACES
 #define ONLY_MSPACES 1
-#endif  /* ONLY_MSPACES */
+#endif /* ONLY_MSPACES */
 #ifndef MSPACES
 #if ONLY_MSPACES
 #define MSPACES 1
-#else   /* ONLY_MSPACES */
+#else /* ONLY_MSPACES */
 #define MSPACES 0
-#endif  /* ONLY_MSPACES */
-#endif  /* MSPACES */
+#endif /* ONLY_MSPACES */
+#endif /* MSPACES */
 #ifndef MALLOC_ALIGNMENT
-#define MALLOC_ALIGNMENT ((size_t)(2 * sizeof(void *)))
-#endif  /* MALLOC_ALIGNMENT */
+#define MALLOC_ALIGNMENT ((size_t) (2 * sizeof(void*)))
+#endif /* MALLOC_ALIGNMENT */
 #ifndef FOOTERS
 #define FOOTERS 0
-#endif  /* FOOTERS */
+#endif /* FOOTERS */
 #ifndef DLM_ABORT
-#define DLM_ABORT  abort()
-#endif  /* DLM_ABORT */
+#define DLM_ABORT abort()
+#endif /* DLM_ABORT */
 #ifndef DLM_ABORT_ON_ASSERT_FAILURE
 #define DLM_ABORT_ON_ASSERT_FAILURE 1
-#endif  /* DLM_ABORT_ON_ASSERT_FAILURE */
+#endif /* DLM_ABORT_ON_ASSERT_FAILURE */
 #ifndef PROCEED_ON_ERROR
 #define PROCEED_ON_ERROR 0
-#endif  /* PROCEED_ON_ERROR */
+#endif /* PROCEED_ON_ERROR */
 
 #ifndef INSECURE
 #define INSECURE 0
-#endif  /* INSECURE */
+#endif /* INSECURE */
 #ifndef MALLOC_INSPECT_ALL
 #define MALLOC_INSPECT_ALL 0
-#endif  /* MALLOC_INSPECT_ALL */
+#endif /* MALLOC_INSPECT_ALL */
 #ifndef HAVE_MMAP
 #define HAVE_MMAP 1
-#endif  /* HAVE_MMAP */
+#endif /* HAVE_MMAP */
 #ifndef MMAP_CLEARS
 #define MMAP_CLEARS 1
-#endif  /* MMAP_CLEARS */
+#endif /* MMAP_CLEARS */
 #ifndef HAVE_MREMAP
 #ifdef linux
 #define HAVE_MREMAP 1
 #define _GNU_SOURCE /* Turns on mremap() definition */
-#else   /* linux */
+#else               /* linux */
 #define HAVE_MREMAP 0
-#endif  /* linux */
-#endif  /* HAVE_MREMAP */
+#endif /* linux */
+#endif /* HAVE_MREMAP */
 #ifndef MALLOC_FAILURE_ACTION
-#define MALLOC_FAILURE_ACTION  errno = ENOMEM;
-#endif  /* MALLOC_FAILURE_ACTION */
+#define MALLOC_FAILURE_ACTION errno = ENOMEM;
+#endif /* MALLOC_FAILURE_ACTION */
 #ifndef HAVE_MORECORE
 #if ONLY_MSPACES
 #define HAVE_MORECORE 0
-#else   /* ONLY_MSPACES */
+#else /* ONLY_MSPACES */
 #define HAVE_MORECORE 1
-#endif  /* ONLY_MSPACES */
-#endif  /* HAVE_MORECORE */
+#endif /* ONLY_MSPACES */
+#endif /* HAVE_MORECORE */
 #if !HAVE_MORECORE
 #define MORECORE_CONTIGUOUS 0
-#else   /* !HAVE_MORECORE */
+#else /* !HAVE_MORECORE */
 #define MORECORE_DEFAULT sbrk
 #ifndef MORECORE_CONTIGUOUS
 #define MORECORE_CONTIGUOUS 1
-#endif  /* MORECORE_CONTIGUOUS */
-#endif  /* HAVE_MORECORE */
+#endif /* MORECORE_CONTIGUOUS */
+#endif /* HAVE_MORECORE */
 #ifndef DEFAULT_GRANULARITY
 #if (MORECORE_CONTIGUOUS || defined(WIN32))
-#define DEFAULT_GRANULARITY (0)  /* 0 means to compute in init_mparams */
-#else   /* MORECORE_CONTIGUOUS */
-#define DEFAULT_GRANULARITY ((size_t)64U * (size_t)1024U)
-#endif  /* MORECORE_CONTIGUOUS */
-#endif  /* DEFAULT_GRANULARITY */
+#define DEFAULT_GRANULARITY (0) /* 0 means to compute in init_mparams */
+#else                           /* MORECORE_CONTIGUOUS */
+#define DEFAULT_GRANULARITY ((size_t) 64U * (size_t) 1024U)
+#endif /* MORECORE_CONTIGUOUS */
+#endif /* DEFAULT_GRANULARITY */
 #ifndef DEFAULT_TRIM_THRESHOLD
 #ifndef MORECORE_CANNOT_TRIM
-#define DEFAULT_TRIM_THRESHOLD ((size_t)2U * (size_t)1024U * (size_t)1024U)
-#else   /* MORECORE_CANNOT_TRIM */
+#define DEFAULT_TRIM_THRESHOLD ((size_t) 2U * (size_t) 1024U * (size_t) 1024U)
+#else /* MORECORE_CANNOT_TRIM */
 #define DEFAULT_TRIM_THRESHOLD MAX_SIZE_T
-#endif  /* MORECORE_CANNOT_TRIM */
-#endif  /* DEFAULT_TRIM_THRESHOLD */
+#endif /* MORECORE_CANNOT_TRIM */
+#endif /* DEFAULT_TRIM_THRESHOLD */
 #ifndef DEFAULT_MMAP_THRESHOLD
 #if HAVE_MMAP
 /*
@@ -720,11 +722,11 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
  * introduce the vector of mmap-allocated chunks to mspace, and in general
  * do some more thorough testing.
  */
-#define DEFAULT_MMAP_THRESHOLD ((size_t)~0ULL)
-#else   /* HAVE_MMAP */
+#define DEFAULT_MMAP_THRESHOLD ((size_t) ~0ULL)
+#else /* HAVE_MMAP */
 #define DEFAULT_MMAP_THRESHOLD MAX_SIZE_T
-#endif  /* HAVE_MMAP */
-#endif  /* DEFAULT_MMAP_THRESHOLD */
+#endif /* HAVE_MMAP */
+#endif /* DEFAULT_MMAP_THRESHOLD */
 #ifndef MAX_RELEASE_CHECK_RATE
 #if HAVE_MMAP
 #define MAX_RELEASE_CHECK_RATE 4095
@@ -734,19 +736,19 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #endif /* MAX_RELEASE_CHECK_RATE */
 #ifndef USE_BUILTIN_FFS
 #define USE_BUILTIN_FFS 0
-#endif  /* USE_BUILTIN_FFS */
+#endif /* USE_BUILTIN_FFS */
 #ifndef USE_DEV_RANDOM
 #define USE_DEV_RANDOM 0
-#endif  /* USE_DEV_RANDOM */
+#endif /* USE_DEV_RANDOM */
 #ifndef NO_MALLINFO
 #define NO_MALLINFO 0
-#endif  /* NO_MALLINFO */
+#endif /* NO_MALLINFO */
 #ifndef MALLINFO_FIELD_TYPE
 #define MALLINFO_FIELD_TYPE size_t
-#endif  /* MALLINFO_FIELD_TYPE */
+#endif /* MALLINFO_FIELD_TYPE */
 #ifndef NO_MALLOC_STATS
 #define NO_MALLOC_STATS 0
-#endif  /* NO_MALLOC_STATS */
+#endif /* NO_MALLOC_STATS */
 #ifndef NO_SEGMENT_TRAVERSAL
 #define NO_SEGMENT_TRAVERSAL 0
 #endif /* NO_SEGMENT_TRAVERSAL */
@@ -758,9 +760,9 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
   malloc does support the following options.
 */
 
-#define M_TRIM_THRESHOLD     (-1)
-#define M_GRANULARITY        (-2)
-#define M_MMAP_THRESHOLD     (-3)
+#define M_TRIM_THRESHOLD (-1)
+#define M_GRANULARITY    (-2)
+#define M_MMAP_THRESHOLD (-3)
 
 /* ------------------------ Mallinfo declarations ------------------------ */
 
@@ -789,7 +791,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 
 /* #define HAVE_USR_INCLUDE_MALLOC_H */
 
-#if 0 // def HAVE_USR_INCLUDE_MALLOC_H
+#if 0  // def HAVE_USR_INCLUDE_MALLOC_H
 #include "/usr/include/malloc.h"
 #else /* HAVE_USR_INCLUDE_MALLOC_H */
 #ifndef STRUCT_MALLINFO_DECLARED
@@ -797,16 +799,16 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 #define _STRUCT_MALLINFO
 #define STRUCT_MALLINFO_DECLARED 1
 struct dlmallinfo {
-  MALLINFO_FIELD_TYPE arena;    /* non-mmapped space allocated from system */
-  MALLINFO_FIELD_TYPE ordblks;  /* number of free chunks */
-  MALLINFO_FIELD_TYPE smblks;   /* always 0 */
-  MALLINFO_FIELD_TYPE hblks;    /* always 0 */
-  MALLINFO_FIELD_TYPE hblkhd;   /* space in mmapped regions */
-  MALLINFO_FIELD_TYPE usmblks;  /* maximum total allocated space */
-  MALLINFO_FIELD_TYPE fsmblks;  /* always 0 */
-  MALLINFO_FIELD_TYPE uordblks; /* total allocated space */
-  MALLINFO_FIELD_TYPE fordblks; /* total free space */
-  MALLINFO_FIELD_TYPE keepcost; /* releasable (via malloc_trim) space */
+    MALLINFO_FIELD_TYPE arena;    /* non-mmapped space allocated from system */
+    MALLINFO_FIELD_TYPE ordblks;  /* number of free chunks */
+    MALLINFO_FIELD_TYPE smblks;   /* always 0 */
+    MALLINFO_FIELD_TYPE hblks;    /* always 0 */
+    MALLINFO_FIELD_TYPE hblkhd;   /* space in mmapped regions */
+    MALLINFO_FIELD_TYPE usmblks;  /* maximum total allocated space */
+    MALLINFO_FIELD_TYPE fsmblks;  /* always 0 */
+    MALLINFO_FIELD_TYPE uordblks; /* total allocated space */
+    MALLINFO_FIELD_TYPE fordblks; /* total free space */
+    MALLINFO_FIELD_TYPE keepcost; /* releasable (via malloc_trim) space */
 };
 #endif /* STRUCT_MALLINFO_DECLARED */
 #endif /* HAVE_USR_INCLUDE_MALLOC_H */
@@ -818,30 +820,30 @@ struct dlmallinfo {
 */
 
 #ifndef FORCEINLINE
-  #if defined(__GNUC__)
-#define FORCEINLINE __inline __attribute__ ((always_inline))
-  #elif defined(_MSC_VER)
-    #define FORCEINLINE __forceinline
-  #endif
+#if defined(__GNUC__)
+#define FORCEINLINE __inline __attribute__((always_inline))
+#elif defined(_MSC_VER)
+#define FORCEINLINE __forceinline
+#endif
 #endif
 #ifndef NOINLINE
-  #if defined(__GNUC__)
-    #define NOINLINE __attribute__ ((noinline))
-  #elif defined(_MSC_VER)
-    #define NOINLINE __declspec(noinline)
-  #else
-    #define NOINLINE
-  #endif
+#if defined(__GNUC__)
+#define NOINLINE __attribute__((noinline))
+#elif defined(_MSC_VER)
+#define NOINLINE __declspec(noinline)
+#else
+#define NOINLINE
+#endif
 #endif
 
 #ifdef __cplusplus
 extern "C" {
 #ifndef FORCEINLINE
- #define FORCEINLINE inline
+#define FORCEINLINE inline
 #endif
 #endif /* __cplusplus */
 #ifndef FORCEINLINE
- #define FORCEINLINE
+#define FORCEINLINE
 #endif
 
 #if !ONLY_MSPACES
@@ -849,28 +851,28 @@ extern "C" {
 /* ------------------- Declarations of public routines ------------------- */
 
 #ifndef USE_DL_PREFIX
-#define dlcalloc               calloc
-#define dlfree                 free
-#define dlmalloc               malloc
-#define dlmemalign             memalign
-#define dlposix_memalign       posix_memalign
-#define dlrealloc              realloc
-#define dlrealloc_in_place     realloc_in_place
-#define dlvalloc               valloc
-#define dlpvalloc              pvalloc
+#define dlcalloc           calloc
+#define dlfree             free
+#define dlmalloc           malloc
+#define dlmemalign         memalign
+#define dlposix_memalign   posix_memalign
+#define dlrealloc          realloc
+#define dlrealloc_in_place realloc_in_place
+#define dlvalloc           valloc
+#define dlpvalloc          pvalloc
 // #define dlmallinfo             mallinfo
-#define dlmallopt              mallopt
-#define dlmalloc_trim          malloc_trim
-#define dlmalloc_stats         malloc_stats
-#define dlmalloc_usable_size   malloc_usable_size
-#define dlmalloc_footprint     malloc_footprint
-#define dlmalloc_max_footprint malloc_max_footprint
-#define dlmalloc_footprint_limit malloc_footprint_limit
+#define dlmallopt                    mallopt
+#define dlmalloc_trim                malloc_trim
+#define dlmalloc_stats               malloc_stats
+#define dlmalloc_usable_size         malloc_usable_size
+#define dlmalloc_footprint           malloc_footprint
+#define dlmalloc_max_footprint       malloc_max_footprint
+#define dlmalloc_footprint_limit     malloc_footprint_limit
 #define dlmalloc_set_footprint_limit malloc_set_footprint_limit
-#define dlmalloc_inspect_all   malloc_inspect_all
-#define dlindependent_calloc   independent_calloc
-#define dlindependent_comalloc independent_comalloc
-#define dlbulk_free            bulk_free
+#define dlmalloc_inspect_all         malloc_inspect_all
+#define dlindependent_calloc         independent_calloc
+#define dlindependent_comalloc       independent_comalloc
+#define dlbulk_free                  bulk_free
 #endif /* USE_DL_PREFIX */
 
 /*
@@ -896,7 +898,7 @@ DLMALLOC_EXPORT void* dlmalloc(size_t);
   It has no effect if p is null. If p was not malloced or already
   freed, free(p) will by default cause the current program to abort.
 */
-DLMALLOC_EXPORT void  dlfree(void*);
+DLMALLOC_EXPORT void dlfree(void*);
 
 /*
   calloc(size_t n_elements, size_t element_size);
@@ -1077,8 +1079,7 @@ DLMALLOC_EXPORT size_t dlmalloc_set_footprint_limit(size_t bytes);
 
   malloc_inspect_all is compiled only if MALLOC_INSPECT_ALL is defined.
 */
-DLMALLOC_EXPORT void dlmalloc_inspect_all(void(*handler)(void*, void *, size_t, void*),
-                           void* arg);
+DLMALLOC_EXPORT void dlmalloc_inspect_all(void (*handler)(void*, void*, size_t, void*), void* arg);
 
 #endif /* MALLOC_INSPECT_ALL */
 
@@ -1226,14 +1227,14 @@ DLMALLOC_EXPORT void** dlindependent_comalloc(size_t, size_t*, void**);
   is returned.  For large arrays of pointers with poor locality, it
   may be worthwhile to sort this array before calling bulk_free.
 */
-DLMALLOC_EXPORT size_t  dlbulk_free(void**, size_t n_elements);
+DLMALLOC_EXPORT size_t dlbulk_free(void**, size_t n_elements);
 
 /*
   pvalloc(size_t n);
   Equivalent to valloc(minimum-page-that-holds(n)), that is,
   round up n to nearest pagesize.
  */
-DLMALLOC_EXPORT void*  dlpvalloc(size_t);
+DLMALLOC_EXPORT void* dlpvalloc(size_t);
 
 /*
   malloc_trim(size_t pad);
@@ -1256,7 +1257,7 @@ DLMALLOC_EXPORT void*  dlpvalloc(size_t);
 
   Malloc_trim returns 1 if it actually released any memory, else 0.
 */
-DLMALLOC_EXPORT int  dlmalloc_trim(size_t);
+DLMALLOC_EXPORT int dlmalloc_trim(size_t);
 
 /*
   malloc_stats();
@@ -1277,7 +1278,7 @@ DLMALLOC_EXPORT int  dlmalloc_trim(size_t);
   malloc_stats prints only the most commonly interesting statistics.
   More information can be obtained by calling mallinfo.
 */
-DLMALLOC_EXPORT void  dlmalloc_stats(void);
+DLMALLOC_EXPORT void dlmalloc_stats(void);
 
 /*
   malloc_usable_size(void* p);
@@ -1350,7 +1351,6 @@ DLMALLOC_EXPORT mspace create_mspace_with_base(void* base, size_t capacity, int 
 */
 DLMALLOC_EXPORT int mspace_track_large_chunks(mspace msp, int enable);
 
-
 /*
   mspace_malloc behaves as malloc, but operates within
   the given space.
@@ -1394,15 +1394,13 @@ DLMALLOC_EXPORT void* mspace_memalign(mspace msp, size_t alignment, size_t bytes
   mspace_independent_calloc behaves as independent_calloc, but
   operates within the given space.
 */
-DLMALLOC_EXPORT void** mspace_independent_calloc(mspace msp, size_t n_elements,
-                                 size_t elem_size, void* chunks[]);
+DLMALLOC_EXPORT void** mspace_independent_calloc(mspace msp, size_t n_elements, size_t elem_size, void* chunks[]);
 
 /*
   mspace_independent_comalloc behaves as independent_comalloc, but
   operates within the given space.
 */
-DLMALLOC_EXPORT void** mspace_independent_comalloc(mspace msp, size_t n_elements,
-                                   size_t sizes[], void* chunks[]);
+DLMALLOC_EXPORT void** mspace_independent_comalloc(mspace msp, size_t n_elements, size_t sizes[], void* chunks[]);
 
 /*
   mspace_footprint() returns the number of bytes obtained from the
@@ -1415,7 +1413,6 @@ DLMALLOC_EXPORT size_t mspace_footprint(mspace msp);
   system for this space.
 */
 DLMALLOC_EXPORT size_t mspace_max_footprint(mspace msp);
-
 
 #if !NO_MALLINFO
 /*
@@ -1447,30 +1444,27 @@ DLMALLOC_EXPORT int mspace_trim(mspace msp, size_t pad);
 */
 DLMALLOC_EXPORT int mspace_mallopt(int, int);
 
-DLMALLOC_EXPORT void* mspace_realloc_in_place (mspace msp, void *oldmem, size_t bytes);
+DLMALLOC_EXPORT void* mspace_realloc_in_place(mspace msp, void* oldmem, size_t bytes);
 
-DLMALLOC_EXPORT void* mspace_get_aligned (mspace msp,
-                                          unsigned long n_user_data_bytes,
-                                          unsigned long align,
-                                          unsigned long align_offset);
+DLMALLOC_EXPORT void* mspace_get_aligned(mspace msp, unsigned long n_user_data_bytes, unsigned long align, unsigned long align_offset);
 
-DLMALLOC_EXPORT int mspace_is_heap_object (mspace msp, void *p);
+DLMALLOC_EXPORT int mspace_is_heap_object(mspace msp, void* p);
 
-DLMALLOC_EXPORT void mspace_get_address_and_size (mspace msp, char **addrp, size_t *sizep);
-DLMALLOC_EXPORT void mspace_put (mspace msp, void *p);
-DLMALLOC_EXPORT void mspace_put_no_offset (mspace msp, void *p);
-DLMALLOC_EXPORT size_t mspace_usable_size_with_delta (const void *p);
-DLMALLOC_EXPORT void mspace_disable_expand (mspace msp);
-DLMALLOC_EXPORT void *mspace_least_addr (mspace msp);
-DLMALLOC_EXPORT void mheap_get_trace (uword offset, uword size);
-DLMALLOC_EXPORT void mheap_put_trace (uword offset, uword size);
-DLMALLOC_EXPORT int mspace_enable_disable_trace (mspace msp, int enable);
-DLMALLOC_EXPORT int mspace_is_traced (mspace msp);
+DLMALLOC_EXPORT void   mspace_get_address_and_size(mspace msp, char** addrp, size_t* sizep);
+DLMALLOC_EXPORT void   mspace_put(mspace msp, void* p);
+DLMALLOC_EXPORT void   mspace_put_no_offset(mspace msp, void* p);
+DLMALLOC_EXPORT size_t mspace_usable_size_with_delta(const void* p);
+DLMALLOC_EXPORT void   mspace_disable_expand(mspace msp);
+DLMALLOC_EXPORT void*  mspace_least_addr(mspace msp);
+DLMALLOC_EXPORT void   mheap_get_trace(uword offset, uword size);
+DLMALLOC_EXPORT void   mheap_put_trace(uword offset, uword size);
+DLMALLOC_EXPORT int    mspace_enable_disable_trace(mspace msp, int enable);
+DLMALLOC_EXPORT int    mspace_is_traced(mspace msp);
 
 #endif /* MSPACES */
 
 #ifdef __cplusplus
-}  /* end of extern "C" */
+} /* end of extern "C" */
 #endif /* __cplusplus */
 
 /*

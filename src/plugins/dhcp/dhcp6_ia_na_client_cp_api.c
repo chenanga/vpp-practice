@@ -35,41 +35,38 @@ static u32 dhcp_base_msg_id;
 
 #include <vlibapi/api_helper_macros.h>
 
-static void
-  vl_api_dhcp6_client_enable_disable_t_handler
-  (vl_api_dhcp6_client_enable_disable_t * mp)
+static void vl_api_dhcp6_client_enable_disable_t_handler(vl_api_dhcp6_client_enable_disable_t *mp)
 {
-  vl_api_dhcp6_client_enable_disable_reply_t *rmp;
-  u32 sw_if_index;
-  int rv = 0;
+    vl_api_dhcp6_client_enable_disable_reply_t *rmp;
+    u32                                         sw_if_index;
+    int                                         rv = 0;
 
-  VALIDATE_SW_IF_INDEX (mp);
+    VALIDATE_SW_IF_INDEX(mp);
 
-  sw_if_index = ntohl (mp->sw_if_index);
+    sw_if_index = ntohl(mp->sw_if_index);
 
-  rv = dhcp6_client_enable_disable (sw_if_index, mp->enable);
+    rv = dhcp6_client_enable_disable(sw_if_index, mp->enable);
 
-  BAD_SW_IF_INDEX_LABEL;
+    BAD_SW_IF_INDEX_LABEL;
 
-  REPLY_MACRO (VL_API_DHCP6_CLIENT_ENABLE_DISABLE_REPLY);
+    REPLY_MACRO(VL_API_DHCP6_CLIENT_ENABLE_DISABLE_REPLY);
 }
 
 #define vl_msg_name_crc_list
 #include <dhcp/dhcp6_ia_na_client_cp.api.c>
 #undef vl_msg_name_crc_list
 
-static clib_error_t *
-dhcp_ia_na_client_cp_api_init (vlib_main_t * vm)
+static clib_error_t *dhcp_ia_na_client_cp_api_init(vlib_main_t *vm)
 {
-  /*
-   * Set up the (msg_name, crc, message-id) table
-   */
-  dhcp_base_msg_id = setup_message_id_table ();
+    /*
+     * Set up the (msg_name, crc, message-id) table
+     */
+    dhcp_base_msg_id = setup_message_id_table();
 
-  return 0;
+    return 0;
 }
 
-VLIB_INIT_FUNCTION (dhcp_ia_na_client_cp_api_init);
+VLIB_INIT_FUNCTION(dhcp_ia_na_client_cp_api_init);
 
 /*
  * fd.io coding-style-patch-verification: ON

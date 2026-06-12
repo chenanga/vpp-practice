@@ -39,34 +39,39 @@
 #define included_clib_smp_h
 
 #include <vppinfra/cache.h>
-#include <vppinfra/os.h>	/* for os_panic */
+#include <vppinfra/os.h> /* for os_panic */
 
-#if defined (i386) || defined (__x86_64__)
-#define clib_smp_pause() do { asm volatile ("pause"); } while (0)
-#elif defined (__aarch64__) || defined (__arm__)
-#define clib_smp_pause() do { asm volatile ("isb" ::: "memory"); } while (0)
+#if defined(i386) || defined(__x86_64__)
+#define clib_smp_pause()       \
+    do {                       \
+        asm volatile("pause"); \
+    } while (0)
+#elif defined(__aarch64__) || defined(__arm__)
+#define clib_smp_pause()                  \
+    do {                                  \
+        asm volatile("isb" ::: "memory"); \
+    } while (0)
 #endif
 
 #ifndef clib_smp_pause
-#define clib_smp_pause() do { } while (0)
+#define clib_smp_pause() \
+    do {                 \
+    } while (0)
 #endif
 
 #ifdef CLIB_UNIX
 #include <sched.h>
 
-always_inline void
-os_sched_yield (void)
+always_inline void os_sched_yield(void)
 {
-  sched_yield ();
+    sched_yield();
 }
 #else
-always_inline void
-os_sched_yield (void)
+always_inline void os_sched_yield(void)
 {
-  clib_smp_pause ();
+    clib_smp_pause();
 }
 #endif
-
 
 #endif /* included_clib_smp_h */
 

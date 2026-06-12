@@ -21,9 +21,9 @@
 
 #include <vnet/ip/ip6_packet.h>
 
-extern int ip6_nd_proxy_add (u32 sw_if_index, const ip6_address_t * addr);
-extern int ip6_nd_proxy_del (u32 sw_if_index, const ip6_address_t * addr);
-extern int ip6_nd_proxy_enable_disable (u32 sw_if_index, u8 enable);
+extern int ip6_nd_proxy_add(u32 sw_if_index, const ip6_address_t* addr);
+extern int ip6_nd_proxy_del(u32 sw_if_index, const ip6_address_t* addr);
+extern int ip6_nd_proxy_enable_disable(u32 sw_if_index, u8 enable);
 
 #endif /* included_ip6_neighbor_h */
 

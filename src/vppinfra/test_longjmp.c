@@ -39,84 +39,77 @@
 #include <vppinfra/longjmp.h>
 #include <vppinfra/format.h>
 
-static void test_calljmp (unformat_input_t * input);
+static void test_calljmp(unformat_input_t *input);
 
 static int i;
 
 static int verbose;
-#define if_verbose(format,args...) \
-  if (verbose) { clib_warning(format, ## args); }
-
-static never_inline void
-f2 (clib_longjmp_t * env)
-{
-  i++;
-  clib_longjmp (env, 1);
-}
-
-static never_inline void
-f1 (clib_longjmp_t * env)
-{
-  i++;
-  f2 (env);
-}
-
-int
-test_longjmp_main (unformat_input_t * input)
-{
-  clib_longjmp_t env;
-
-  i = 0;
-  if (clib_setjmp (&env, 0) == 0)
-    {
-      if_verbose ("calling long jumper %d", i);
-      f1 (&env);
+#define if_verbose(format, args...)   \
+    if (verbose) {                    \
+        clib_warning(format, ##args); \
     }
-  if_verbose ("back from long jump %d", i);
 
-  test_calljmp (input);
-
-  return 0;
+static never_inline void f2(clib_longjmp_t *env)
+{
+    i++;
+    clib_longjmp(env, 1);
 }
 
-static uword
-f3 (uword arg)
+static never_inline void f1(clib_longjmp_t *env)
 {
-  return (uword) __builtin_frame_address (0);
+    i++;
+    f2(env);
 }
 
-static void
-test_calljmp (unformat_input_t * input)
+int test_longjmp_main(unformat_input_t *input)
 {
-  u8 stack[4096] __attribute__ ((aligned (16))) = {};
-  uword start, end, v;
+    clib_longjmp_t env;
 
-  start = pointer_to_uword (stack);
-  end = start + ARRAY_LEN (stack);
+    i = 0;
+    if (clib_setjmp(&env, 0) == 0) {
+        if_verbose("calling long jumper %d", i);
+        f1(&env);
+    }
+    if_verbose("back from long jump %d", i);
 
-  v = f3 (0);
-  if (!(v < start || v > end))
-    clib_panic ("something went wrong in the calljmp test");
+    test_calljmp(input);
 
-  v = clib_calljmp (f3, 0, stack + sizeof (stack));
-  if_verbose ("calljump %s",
-	      v >= start && v < (end - sizeof (uword)) ? "ok" : "fail");
+    return 0;
+}
+
+static uword f3(uword arg)
+{
+    return (uword) __builtin_frame_address(0);
+}
+
+static void test_calljmp(unformat_input_t *input)
+{
+    u8    stack[4096] __attribute__((aligned(16))) = {};
+    uword start, end, v;
+
+    start = pointer_to_uword(stack);
+    end   = start + ARRAY_LEN(stack);
+
+    v = f3(0);
+    if (!(v < start || v > end)) clib_panic("something went wrong in the calljmp test");
+
+    v = clib_calljmp(f3, 0, stack + sizeof(stack));
+    if_verbose("calljump %s", v >= start && v < (end - sizeof(uword)) ? "ok" : "fail");
 }
 
 #ifdef CLIB_UNIX
-int
-main (int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  unformat_input_t i;
-  int res;
+    unformat_input_t i;
+    int              res;
 
-  clib_mem_init (0, 64 << 20);
+    clib_mem_init(0, 64 << 20);
 
-  verbose = (argc > 1);
-  unformat_init_command_line (&i, argv);
-  res = test_longjmp_main (&i);
-  unformat_free (&i);
-  return res;
+    verbose = (argc > 1);
+    unformat_init_command_line(&i, argv);
+    res = test_longjmp_main(&i);
+    unformat_free(&i);
+    return res;
 }
 #endif
 

@@ -8,12 +8,11 @@
 #include <http/http.h>
 
 static http_token_t http_content_types[] = {
-#define _(s, ext, str) { http_token_lit (str) },
-  foreach_http_content_type
+#define _(s, ext, str) {http_token_lit(str)},
+    foreach_http_content_type
 #undef _
 };
 
-#define http_content_type_token(e)                                            \
-  http_content_types[e].base, http_content_types[e].len
+#define http_content_type_token(e) http_content_types[e].base, http_content_types[e].len
 
 #endif /* SRC_PLUGINS_HTTP_HTTP_CONTENT_TYPES_H_ */

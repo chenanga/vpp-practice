@@ -11,19 +11,17 @@
 #include <vnet/dev/dev.h>
 #include <base/roc_api.h>
 
-static_always_inline u32
-oct_aura_free_all_buffers (vlib_main_t *vm, u64 aura_handle, u16 hdr_off)
+static_always_inline u32 oct_aura_free_all_buffers(vlib_main_t *vm, u64 aura_handle, u16 hdr_off)
 {
-  u32 n = 0;
-  u64 iova;
+    u32 n = 0;
+    u64 iova;
 
-  while ((iova = roc_npa_aura_op_alloc (aura_handle, 0)))
-    {
-      vlib_buffer_t *b = (void *) iova + hdr_off;
-      vlib_buffer_free_one (vm, vlib_get_buffer_index (vm, b));
-      n++;
+    while ((iova = roc_npa_aura_op_alloc(aura_handle, 0))) {
+        vlib_buffer_t *b = (void *) iova + hdr_off;
+        vlib_buffer_free_one(vm, vlib_get_buffer_index(vm, b));
+        n++;
     }
-  return n;
+    return n;
 }
 
 #endif /* _OCT_COMMON_H_ */

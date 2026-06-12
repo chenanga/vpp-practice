@@ -16,7 +16,7 @@
 #include <vnet/dpo/load_balance.h>
 #include <vnet/dpo/load_balance_map.h>
 #include <vnet/dpo/drop_dpo.h>
-#include <vppinfra/math.h>              /* for fabs */
+#include <vppinfra/math.h> /* for fabs */
 #include <vnet/adj/adj.h>
 #include <vnet/adj/adj_internal.h>
 #include <vnet/fib/fib_urpf_list.h>

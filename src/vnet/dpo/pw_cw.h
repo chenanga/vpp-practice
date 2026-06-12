@@ -28,8 +28,7 @@ typedef u32 pw_cw_t;
 /**
  * A representation of a Psuedo Wire Control Word pop DPO
  */
-typedef struct pw_cw_dpo_t
-{
+typedef struct pw_cw_dpo_t {
     /**
      * Next DPO in the graph
      */
@@ -59,18 +58,16 @@ STATIC_ASSERT_SIZEOF(pw_cw_dpo_t, 2 * sizeof(u64));
  * @param parent The parent of the created MPLS label object
  * @param dpo The PW CW DPO created
  */
-extern void pw_cw_dpo_create(const dpo_id_t *paremt,
-                             dpo_id_t *dpo);
+extern void pw_cw_dpo_create(const dpo_id_t *paremt, dpo_id_t *dpo);
 
-extern u8* format_pw_cw_dpo(u8 *s, va_list *args);
+extern u8 *format_pw_cw_dpo(u8 *s, va_list *args);
 
 /*
  * Encapsulation violation for fast data-path access
  */
 extern pw_cw_dpo_t *pw_cw_dpo_pool;
 
-static inline pw_cw_dpo_t *
-pw_cw_dpo_get (index_t index)
+static inline pw_cw_dpo_t *pw_cw_dpo_get(index_t index)
 {
     return (pool_elt_at_index(pw_cw_dpo_pool, index));
 }

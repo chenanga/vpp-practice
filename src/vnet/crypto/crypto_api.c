@@ -39,63 +39,57 @@ static u32 crypto_base_msg_id;
 
 #include <vlibapi/api_helper_macros.h>
 
-static void
-vl_api_crypto_set_async_dispatch_t_handler (vl_api_crypto_set_async_dispatch_t
-					    * mp)
+static void vl_api_crypto_set_async_dispatch_t_handler(vl_api_crypto_set_async_dispatch_t *mp)
 {
-  vl_api_crypto_set_async_dispatch_reply_t *rmp;
-  int rv = 0;
+    vl_api_crypto_set_async_dispatch_reply_t *rmp;
+    int                                       rv = 0;
 
-  vnet_crypto_set_async_dispatch ((u8) mp->mode, 0);
+    vnet_crypto_set_async_dispatch((u8) mp->mode, 0);
 
-  REPLY_MACRO (VL_API_CRYPTO_SET_ASYNC_DISPATCH_REPLY);
+    REPLY_MACRO(VL_API_CRYPTO_SET_ASYNC_DISPATCH_REPLY);
 }
 
-static void
-vl_api_crypto_set_async_dispatch_v2_t_handler (
-  vl_api_crypto_set_async_dispatch_v2_t *mp)
+static void vl_api_crypto_set_async_dispatch_v2_t_handler(vl_api_crypto_set_async_dispatch_v2_t *mp)
 {
-  vl_api_crypto_set_async_dispatch_v2_reply_t *rmp;
-  int rv = 0;
+    vl_api_crypto_set_async_dispatch_v2_reply_t *rmp;
+    int                                          rv = 0;
 
-  vnet_crypto_set_async_dispatch ((u8) mp->mode, mp->adaptive ? 1 : 0);
+    vnet_crypto_set_async_dispatch((u8) mp->mode, mp->adaptive ? 1 : 0);
 
-  REPLY_MACRO (VL_API_CRYPTO_SET_ASYNC_DISPATCH_V2_REPLY);
+    REPLY_MACRO(VL_API_CRYPTO_SET_ASYNC_DISPATCH_V2_REPLY);
 }
 
-static void
-vl_api_crypto_set_handler_t_handler (vl_api_crypto_set_handler_t * mp)
+static void vl_api_crypto_set_handler_t_handler(vl_api_crypto_set_handler_t *mp)
 {
-  vl_api_crypto_set_handler_reply_t *rmp;
-  int rv = 0;
-  char *engine;
-  char *alg_name;
-  crypto_op_class_type_t oct;
+    vl_api_crypto_set_handler_reply_t *rmp;
+    int                                rv = 0;
+    char                              *engine;
+    char                              *alg_name;
+    crypto_op_class_type_t             oct;
 
-  engine = (char *) mp->engine;
-  alg_name = (char *) mp->alg_name;
-  oct = (crypto_op_class_type_t) mp->oct;
+    engine   = (char *) mp->engine;
+    alg_name = (char *) mp->alg_name;
+    oct      = (crypto_op_class_type_t) mp->oct;
 
-  if (mp->is_async)
-    rv = vnet_crypto_set_async_handler2 (alg_name, engine);
-  else
-    rv = vnet_crypto_set_handler2 (alg_name, engine, oct);
+    if (mp->is_async)
+        rv = vnet_crypto_set_async_handler2(alg_name, engine);
+    else
+        rv = vnet_crypto_set_handler2(alg_name, engine, oct);
 
-  REPLY_MACRO (VL_API_CRYPTO_SET_HANDLER_REPLY);
+    REPLY_MACRO(VL_API_CRYPTO_SET_HANDLER_REPLY);
 }
 
 #include <vnet/crypto/crypto.api.c>
 
-clib_error_t *
-crypto_api_hookup (vlib_main_t * vm)
+clib_error_t *crypto_api_hookup(vlib_main_t *vm)
 {
-  /* Ask for a correctly-sized block of API message decode slots */
-  crypto_base_msg_id = setup_message_id_table ();
+    /* Ask for a correctly-sized block of API message decode slots */
+    crypto_base_msg_id = setup_message_id_table();
 
-  return 0;
+    return 0;
 }
 
-VLIB_API_INIT_FUNCTION (crypto_api_hookup);
+VLIB_API_INIT_FUNCTION(crypto_api_hookup);
 
 /*
  * fd.io coding-style-patch-verification: ON

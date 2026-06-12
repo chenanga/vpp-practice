@@ -836,7 +836,7 @@ static_always_inline u64 dispatch_node(vlib_main_t         *vm,
         };
         struct {
             u32 node_name, vector_length, is_polling;
-        } *ed;
+        } * ed;
 
         if ((dispatch_state == VLIB_NODE_STATE_INTERRUPT && v >= nm->polling_threshold_vector_length)
             && !(node->flags & VLIB_NODE_FLAG_SWITCH_FROM_INTERRUPT_TO_POLLING_MODE)) {
@@ -1110,9 +1110,9 @@ static u64 dispatch_process(vlib_main_t *vm, vlib_process_t *p, vlib_frame_t *f,
         if (p->flags & VLIB_PROCESS_IS_SUSPENDED_WAITING_FOR_CLOCK) {
             TWT(tw_timer_wheel) *tw = (TWT(tw_timer_wheel) *) nm->timing_wheel;
             p->stop_timer_handle    = TW(tw_timer_start)(tw,
-                                                         vlib_timing_wheel_data_set_suspended_process(node->runtime_index) /* [sic] pool idex */,
-                                                         0 /* timer_id */,
-                                                         p->resume_clock_interval);
+                                                      vlib_timing_wheel_data_set_suspended_process(node->runtime_index) /* [sic] pool idex */,
+                                                      0 /* timer_id */,
+                                                      p->resume_clock_interval);
         }
     }
     else
@@ -1368,7 +1368,7 @@ static_always_inline void vlib_main_or_worker_loop(vlib_main_t *vm, int is_main)
 
             struct {
                 int nready_procs;
-            } *ed;
+            } * ed;
 
             /* Check if process nodes have expired from timing wheel. */
             ASSERT(nm->data_from_advancing_timing_wheel != 0);
@@ -1661,10 +1661,11 @@ int vlib_main(vlib_main_t *volatile vm, unformat_input_t *input)
     vec_set_len(nm->data_from_advancing_timing_wheel, 0);
 
     /* Create the process timing wheel */
-    TW(tw_timer_wheel_init)((TWT(tw_timer_wheel) *) nm->timing_wheel,
-                            process_expired_timer_cb /* callback */,
-                            10e-6 /* timer period 10us */,
-                            ~0 /* max expirations per call */);
+    TW(tw_timer_wheel_init)
+    ((TWT(tw_timer_wheel) *) nm->timing_wheel,
+     process_expired_timer_cb /* callback */,
+     10e-6 /* timer period 10us */,
+     ~0 /* max expirations per call */);
 
     vec_validate(vm->pending_rpc_requests, 0);
     vec_set_len(vm->pending_rpc_requests, 0);

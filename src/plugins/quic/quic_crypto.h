@@ -21,12 +21,10 @@
 #if OPENSSL_VERSION_NUMBER >= 0x30000000L
 #include <openssl/provider.h>
 
-#define quic_load_openssl3_legacy_provider()                                  \
-  do                                                                          \
-    {                                                                         \
-      (void) OSSL_PROVIDER_load (NULL, "legacy");                             \
-    }                                                                         \
-  while (0)
+#define quic_load_openssl3_legacy_provider()       \
+    do {                                           \
+        (void) OSSL_PROVIDER_load(NULL, "legacy"); \
+    } while (0)
 #else
 #define quic_load_openssl3_legacy_provider()
 #endif
@@ -35,11 +33,8 @@ struct quic_ctx_t;
 
 extern ptls_cipher_suite_t *quic_crypto_cipher_suites[];
 
-int quic_encrypt_ticket_cb (ptls_encrypt_ticket_t * _self, ptls_t * tls,
-			    int is_encrypt, ptls_buffer_t * dst,
-			    ptls_iovec_t src);
-void quic_crypto_decrypt_packet (quic_ctx_t * qctx,
-				 quic_rx_packet_ctx_t * pctx);
+int  quic_encrypt_ticket_cb(ptls_encrypt_ticket_t *_self, ptls_t *tls, int is_encrypt, ptls_buffer_t *dst, ptls_iovec_t src);
+void quic_crypto_decrypt_packet(quic_ctx_t *qctx, quic_rx_packet_ctx_t *pctx);
 
 #endif /* __included_vpp_quic_crypto_h__ */
 /*

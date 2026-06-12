@@ -15,22 +15,15 @@
 #ifndef __POLICE_H__
 #define __POLICE_H__
 
-typedef enum
-{
-  POLICE_CONFORM = 0,
-  POLICE_EXCEED = 1,
-  POLICE_VIOLATE = 2,
+typedef enum {
+    POLICE_CONFORM = 0,
+    POLICE_EXCEED  = 1,
+    POLICE_VIOLATE = 2,
 } policer_result_e;
 
 #define NUM_POLICE_RESULTS 3
 
-typedef enum
-{
-  QOS_ACTION_DROP = 0,
-  QOS_ACTION_TRANSMIT,
-  QOS_ACTION_MARK_AND_TRANSMIT,
-  QOS_ACTION_HANDOFF
-} __clib_packed qos_action_type_en;
+typedef enum { QOS_ACTION_DROP = 0, QOS_ACTION_TRANSMIT, QOS_ACTION_MARK_AND_TRANSMIT, QOS_ACTION_HANDOFF } __clib_packed qos_action_type_en;
 
 // This is the hardware representation of the policer.
 // To be multithread-safe, the policer is accessed through a spin-lock
@@ -70,151 +63,126 @@ typedef enum
 #define POLICER_TICKS_PER_PERIOD_SHIFT 17
 #define POLICER_TICKS_PER_PERIOD       (1 << POLICER_TICKS_PER_PERIOD_SHIFT)
 
-typedef struct
-{
-  CLIB_CACHE_LINE_ALIGN_MARK (cacheline0);
-  u32 single_rate;		// 1 = single rate policer, 0 = two rate policer
-  u32 color_aware;		// for hierarchical policing
-  u32 scale;			// power-of-2 shift amount for lower rates
-  qos_action_type_en action[3];
-  ip_dscp_t mark_dscp[3];
-  u8 pad[2];
+typedef struct {
+    CLIB_CACHE_LINE_ALIGN_MARK(cacheline0);
+    u32                single_rate;  // 1 = single rate policer, 0 = two rate policer
+    u32                color_aware;  // for hierarchical policing
+    u32                scale;        // power-of-2 shift amount for lower rates
+    qos_action_type_en action[3];
+    ip_dscp_t          mark_dscp[3];
+    u8                 pad[2];
 
-  // Fields are marked as 2R if they are only used for a 2-rate policer,
-  // and MOD if they are modified as part of the update operation.
-  // 1 token = 1 byte.
+    // Fields are marked as 2R if they are only used for a 2-rate policer,
+    // and MOD if they are modified as part of the update operation.
+    // 1 token = 1 byte.
 
-  u32 cir_tokens_per_period;	// # of tokens for each period
-  u32 pir_tokens_per_period;	// 2R
+    u32 cir_tokens_per_period;  // # of tokens for each period
+    u32 pir_tokens_per_period;  // 2R
 
-  u32 current_limit;
-  u32 current_bucket;		// MOD
-  u32 extended_limit;
-  u32 extended_bucket;		// MOD
-  u32 thread_index;		// Tie policer to a thread, rather than lock
-  u64 last_update_time;		// MOD
-  u8 *name;
+    u32 current_limit;
+    u32 current_bucket;  // MOD
+    u32 extended_limit;
+    u32 extended_bucket;   // MOD
+    u32 thread_index;      // Tie policer to a thread, rather than lock
+    u64 last_update_time;  // MOD
+    u8 *name;
 } policer_t;
 
-STATIC_ASSERT_SIZEOF (policer_t, CLIB_CACHE_LINE_BYTES);
+STATIC_ASSERT_SIZEOF(policer_t, CLIB_CACHE_LINE_BYTES);
 
-static inline policer_result_e
-vnet_police_packet (policer_t *policer, u32 packet_length,
-		    policer_result_e packet_color, u64 time)
+static inline policer_result_e vnet_police_packet(policer_t *policer, u32 packet_length, policer_result_e packet_color, u64 time)
 {
-  u64 n_periods;
-  u64 current_tokens, extended_tokens;
-  policer_result_e result;
+    u64              n_periods;
+    u64              current_tokens, extended_tokens;
+    policer_result_e result;
 
-  // Scale packet length to support a wide range of speeds
-  packet_length = packet_length << policer->scale;
+    // Scale packet length to support a wide range of speeds
+    packet_length = packet_length << policer->scale;
 
-  // Compute the number of policer periods that have passed since the last
-  // operation.
-  n_periods = time - policer->last_update_time;
-  policer->last_update_time = time;
+    // Compute the number of policer periods that have passed since the last
+    // operation.
+    n_periods                 = time - policer->last_update_time;
+    policer->last_update_time = time;
 
-  // Since there is no background last-update-time adjustment, n_periods
-  // could grow large if the policer is idle for a long time. This could
-  // cause a 64-bit overflow when computing tokens_per_period * num_periods.
-  // It will overflow if log2(n_periods) + log2(tokens_per_period) > 64.
-  //
-  // To mitigate this, the policer configuration algorithm insures that
-  // tokens_per_period is less than 2^22, i.e. this is a 22 bit value not
-  // a 32-bit value. Thus overflow will only occur if n_periods > 64-22 or
-  // 42. 2^42 min-sized periods is 16us * 2^42, or 2 years. So this can
-  // rarely occur. If overflow does happen, the only effect will be that
-  // fewer tokens than the max burst will be added to the bucket for this
-  // packet. This constraint on tokens_per_period lets the ucode omit
-  // code to dynamically check for or prevent the overflow.
+    // Since there is no background last-update-time adjustment, n_periods
+    // could grow large if the policer is idle for a long time. This could
+    // cause a 64-bit overflow when computing tokens_per_period * num_periods.
+    // It will overflow if log2(n_periods) + log2(tokens_per_period) > 64.
+    //
+    // To mitigate this, the policer configuration algorithm insures that
+    // tokens_per_period is less than 2^22, i.e. this is a 22 bit value not
+    // a 32-bit value. Thus overflow will only occur if n_periods > 64-22 or
+    // 42. 2^42 min-sized periods is 16us * 2^42, or 2 years. So this can
+    // rarely occur. If overflow does happen, the only effect will be that
+    // fewer tokens than the max burst will be added to the bucket for this
+    // packet. This constraint on tokens_per_period lets the ucode omit
+    // code to dynamically check for or prevent the overflow.
 
-  if (policer->single_rate)
-    {
+    if (policer->single_rate) {
+        // Compute number of tokens for this time period
+        current_tokens = policer->current_bucket + n_periods * policer->cir_tokens_per_period;
+        if (current_tokens > policer->current_limit) {
+            current_tokens = policer->current_limit;
+        }
 
-      // Compute number of tokens for this time period
-      current_tokens =
-	policer->current_bucket + n_periods * policer->cir_tokens_per_period;
-      if (current_tokens > policer->current_limit)
-	{
-	  current_tokens = policer->current_limit;
-	}
+        extended_tokens = policer->extended_bucket + n_periods * policer->cir_tokens_per_period;
+        if (extended_tokens > policer->extended_limit) {
+            extended_tokens = policer->extended_limit;
+        }
 
-      extended_tokens =
-	policer->extended_bucket + n_periods * policer->cir_tokens_per_period;
-      if (extended_tokens > policer->extended_limit)
-	{
-	  extended_tokens = policer->extended_limit;
-	}
+        // Determine color
 
-      // Determine color
-
-      if ((!policer->color_aware || (packet_color == POLICE_CONFORM))
-	  && (current_tokens >= packet_length))
-	{
-	  policer->current_bucket = current_tokens - packet_length;
-	  policer->extended_bucket = extended_tokens - packet_length;
-	  result = POLICE_CONFORM;
-	}
-      else if ((!policer->color_aware || (packet_color != POLICE_VIOLATE))
-	       && (extended_tokens >= packet_length))
-	{
-	  policer->current_bucket = current_tokens;
-	  policer->extended_bucket = extended_tokens - packet_length;
-	  result = POLICE_EXCEED;
-	}
-      else
-	{
-	  policer->current_bucket = current_tokens;
-	  policer->extended_bucket = extended_tokens;
-	  result = POLICE_VIOLATE;
-	}
-
+        if ((!policer->color_aware || (packet_color == POLICE_CONFORM)) && (current_tokens >= packet_length)) {
+            policer->current_bucket  = current_tokens - packet_length;
+            policer->extended_bucket = extended_tokens - packet_length;
+            result                   = POLICE_CONFORM;
+        }
+        else if ((!policer->color_aware || (packet_color != POLICE_VIOLATE)) && (extended_tokens >= packet_length)) {
+            policer->current_bucket  = current_tokens;
+            policer->extended_bucket = extended_tokens - packet_length;
+            result                   = POLICE_EXCEED;
+        }
+        else {
+            policer->current_bucket  = current_tokens;
+            policer->extended_bucket = extended_tokens;
+            result                   = POLICE_VIOLATE;
+        }
     }
-  else
-    {
-      // Two-rate policer
+    else {
+        // Two-rate policer
 
-      // Compute number of tokens for this time period
-      current_tokens =
-	policer->current_bucket + n_periods * policer->cir_tokens_per_period;
-      extended_tokens =
-	policer->extended_bucket + n_periods * policer->pir_tokens_per_period;
-      if (current_tokens > policer->current_limit)
-	{
-	  current_tokens = policer->current_limit;
-	}
-      if (extended_tokens > policer->extended_limit)
-	{
-	  extended_tokens = policer->extended_limit;
-	}
+        // Compute number of tokens for this time period
+        current_tokens  = policer->current_bucket + n_periods * policer->cir_tokens_per_period;
+        extended_tokens = policer->extended_bucket + n_periods * policer->pir_tokens_per_period;
+        if (current_tokens > policer->current_limit) {
+            current_tokens = policer->current_limit;
+        }
+        if (extended_tokens > policer->extended_limit) {
+            extended_tokens = policer->extended_limit;
+        }
 
-      // Determine color
+        // Determine color
 
-      if ((policer->color_aware && (packet_color == POLICE_VIOLATE))
-	  || (extended_tokens < packet_length))
-	{
-	  policer->current_bucket = current_tokens;
-	  policer->extended_bucket = extended_tokens;
-	  result = POLICE_VIOLATE;
-	}
-      else if ((policer->color_aware && (packet_color == POLICE_EXCEED))
-	       || (current_tokens < packet_length))
-	{
-	  policer->current_bucket = current_tokens;
-	  policer->extended_bucket = extended_tokens - packet_length;
-	  result = POLICE_EXCEED;
-	}
-      else
-	{
-	  policer->current_bucket = current_tokens - packet_length;
-	  policer->extended_bucket = extended_tokens - packet_length;
-	  result = POLICE_CONFORM;
-	}
+        if ((policer->color_aware && (packet_color == POLICE_VIOLATE)) || (extended_tokens < packet_length)) {
+            policer->current_bucket  = current_tokens;
+            policer->extended_bucket = extended_tokens;
+            result                   = POLICE_VIOLATE;
+        }
+        else if ((policer->color_aware && (packet_color == POLICE_EXCEED)) || (current_tokens < packet_length)) {
+            policer->current_bucket  = current_tokens;
+            policer->extended_bucket = extended_tokens - packet_length;
+            result                   = POLICE_EXCEED;
+        }
+        else {
+            policer->current_bucket  = current_tokens - packet_length;
+            policer->extended_bucket = extended_tokens - packet_length;
+            result                   = POLICE_CONFORM;
+        }
     }
-  return result;
+    return result;
 }
 
-#endif // __POLICE_H__
+#endif  // __POLICE_H__
 
 /*
  * fd.io coding-style-patch-verification: ON

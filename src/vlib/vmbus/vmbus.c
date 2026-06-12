@@ -25,31 +25,27 @@
 #include <net/if.h>
 
 /* this is a stub replaced by the Linux specfic version */
-vlib_vmbus_addr_t *__clib_weak
-vlib_vmbus_get_all_dev_addrs ()
+vlib_vmbus_addr_t *__clib_weak vlib_vmbus_get_all_dev_addrs()
 {
-  return NULL;
+    return NULL;
 }
 
-u8 *__clib_weak
-format_vlib_vmbus_addr (u8 *s, va_list *va)
+u8 *__clib_weak format_vlib_vmbus_addr(u8 *s, va_list *va)
 {
-  return 0;
+    return 0;
 }
 
-uword __clib_weak
-unformat_vlib_vmbus_addr (unformat_input_t *input, va_list *args)
+uword __clib_weak unformat_vlib_vmbus_addr(unformat_input_t *input, va_list *args)
 {
-  return 0;
+    return 0;
 }
 
-clib_error_t *
-vmbus_bus_init (vlib_main_t * vm)
+clib_error_t *vmbus_bus_init(vlib_main_t *vm)
 {
-  return 0;
+    return 0;
 }
 
-VLIB_INIT_FUNCTION (vmbus_bus_init);
+VLIB_INIT_FUNCTION(vmbus_bus_init);
 
 /*
  * fd.io coding-style-patch-verification: ON
